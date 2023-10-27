@@ -6,7 +6,7 @@ library Errors {
     error CannotInitImplementation();
     error Initialized();
     error InitParamsInvalid();
-    error NotTomoFragmentHub();
+    error NotTomoFragmentEntryPoint();
     error LiquidityNotEnough();
     error SubjectNotExist();
     error LiquidityProviderCanNotBuy();
