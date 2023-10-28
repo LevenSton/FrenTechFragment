@@ -67,7 +67,13 @@ contract TomoFragmentEntryPoint is
         if (msg.value < priceAfterFee) revert Errors.FundsNotEnough();
         if (priceAfterFee > maxAcceptPrice)
             revert Errors.LargeThanMaxAcceptPrice();
-        ITomo(TOMO_IMPL).buyVotePass(subject, amount, v, r, s);
+        ITomo(TOMO_IMPL).buyVotePass{value: msg.value}(
+            subject,
+            amount,
+            v,
+            r,
+            s
+        );
         _sendToTomoFragmentPool(subject, amount, fragmentAmount);
     }
 
@@ -80,11 +86,9 @@ contract TomoFragmentEntryPoint is
         address poolAddress = _subjectToFragmentPool[subject]
             .fragmentPoolAddress;
         if (poolAddress == address(0)) revert Errors.FragmentPoolNotExist();
-        uint256 buyPrice = ITomoFragmentPool(poolAddress).buyFragmentVotePass(
-            amount,
-            maxAcceptPrice,
-            payable(msg.sender)
-        );
+        uint256 buyPrice = ITomoFragmentPool(poolAddress).buyFragmentVotePass{
+            value: msg.value
+        }(amount, maxAcceptPrice, payable(msg.sender));
         _emitBuyFragmentSuccess(subject, msg.sender, amount, buyPrice);
     }
 
