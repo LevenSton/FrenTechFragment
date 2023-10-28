@@ -70,7 +70,7 @@ interface ITomoFragmentPool {
      */
     function addETHLiquidity(
         address payable ethLiquidityProvider
-    ) external payable;
+    ) external payable returns (uint256);
 
     /**
      * @notice get fragment param.
@@ -83,5 +83,14 @@ interface ITomoFragmentPool {
      *
      * @param quitor Address who want to quit liquidity provider.
      */
-    function quitFromLiquidityProvider(address quitor) external;
+    function quitFromLiquidityProvider(address payable quitor) external;
+
+    /**
+     * @notice query how mant fragment votepass and eth can get if quit the liquidity
+     *
+     * @param quitor Address who want to quit liquidity provider.
+     */
+    function getVotePassAndEthIfQuit(
+        address quitor
+    ) external view returns (uint256, uint256);
 }

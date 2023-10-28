@@ -31,7 +31,8 @@ library Events {
     event AddFragmentKeyLiquidity(
         address fragmentPoolAddress,
         address liquidityProvider,
-        uint256 fragmentKeyLiquidity
+        uint256 fragmentKeyLiquidity,
+        uint256 timeStamp
     );
 
     event TradeFragmentSuccess(

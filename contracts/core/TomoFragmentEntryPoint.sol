@@ -155,8 +155,14 @@ contract TomoFragmentEntryPoint is
         address poolAddress = _subjectToFragmentPool[subject]
             .fragmentPoolAddress;
         if (poolAddress == address(0)) revert Errors.FragmentPoolNotExist();
-        ITomoFragmentPool(poolAddress).addETHLiquidity{value: msg.value}(
-            payable(msg.sender)
+        uint256 liquidityKeyAmount = ITomoFragmentPool(poolAddress)
+            .addETHLiquidity{value: msg.value}(payable(msg.sender));
+
+        _emitAddKeyLiquidity(
+            poolAddress,
+            msg.sender,
+            liquidityKeyAmount,
+            block.timestamp
         );
     }
 
@@ -165,7 +171,9 @@ contract TomoFragmentEntryPoint is
         address poolAddress = _subjectToFragmentPool[subject]
             .fragmentPoolAddress;
         if (poolAddress == address(0)) revert Errors.FragmentPoolNotExist();
-        ITomoFragmentPool(poolAddress).quitFromLiquidityProvider(msg.sender);
+        ITomoFragmentPool(poolAddress).quitFromLiquidityProvider(
+            payable(msg.sender)
+        );
     }
 
     /// ***************************************
@@ -335,7 +343,8 @@ contract TomoFragmentEntryPoint is
         _emitAddKeyLiquidity(
             _subjectToFragmentPool[subject].fragmentPoolAddress,
             msg.sender,
-            amount
+            amount,
+            block.timestamp
         );
     }
 
@@ -366,12 +375,14 @@ contract TomoFragmentEntryPoint is
     function _emitAddKeyLiquidity(
         address poolAddress,
         address liquidityProvider,
-        uint256 liquidity
+        uint256 liquidity,
+        uint256 timeStamp
     ) private {
         emit Events.AddFragmentKeyLiquidity(
             poolAddress,
             liquidityProvider,
-            liquidity
+            liquidity,
+            timeStamp
         );
     }
 

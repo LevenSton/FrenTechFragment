@@ -31,4 +31,5 @@ library Errors {
     error NotAvaiableAmount();
     error NotContrainThisLockIndex();
     error AlreadyContrainThisLockIndex();
+    error JustLiquidityProviderCanQuit();
 }

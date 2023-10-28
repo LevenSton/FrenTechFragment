@@ -113,29 +113,8 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         if (_bLiquidityProvider[seller])
             revert Errors.LiquidityProviderCanNotSell();
         if (amount > _fragBalance[seller]) revert Errors.NotEnoughFragment();
-        bool bSellWholeKey = false;
-        uint256 priceSellToTomo = 0;
-        if (amount > _fragmentParam) {
-            (priceSellToTomo, amount) = sellToTomo(amount, seller);
-            bSellWholeKey = true;
-        }
-        (uint256 price, uint256 priceAfterFee) = getSellPriceAfterFee(amount);
-        if (priceAfterFee < minAcceptPrice && !bSellWholeKey) {
-            revert Errors.LessThanMinAcceptPrice();
-        }
-        if (bSellWholeKey) {
-            if (address(this).balance < priceAfterFee) {
-                return priceSellToTomo;
-            }
-        }
-        return
-            sellFragmentKey(
-                amount,
-                priceSellToTomo,
-                price,
-                priceAfterFee,
-                seller
-            );
+
+        return _sellFragmentKey(amount, minAcceptPrice, seller);
     }
 
     /// @inheritdoc ITomoFragmentPool
@@ -161,7 +140,7 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
     /// @inheritdoc ITomoFragmentPool
     function addETHLiquidity(
         address payable ethLiquidityProvider
-    ) external payable override {
+    ) external payable override returns (uint256) {
         if (msg.sender != TOMO_FRAGMENT_ENTRYPOINT)
             revert Errors.NotTomoFragmentEntryPoint();
         uint256 keyPrice = ITomo(TOMO_IMPL).getBuyPrice(_subject, 0);
@@ -173,18 +152,47 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
             uint256 left = msg.value -
                 (liquidityKeyAmount * keyPrice) /
                 _fragmentParam;
-            (bool succuss, ) = ethLiquidityProvider.call{value: left}("");
-            if (!succuss) revert Errors.SendETHFailed();
+            (bool success, ) = ethLiquidityProvider.call{value: left}("");
+            if (!success) revert Errors.SendETHFailed();
         }
         _addPayee(ethLiquidityProvider, liquidityKeyAmount, block.timestamp);
+        return liquidityKeyAmount;
     }
 
     /// @inheritdoc ITomoFragmentPool
-    function quitFromLiquidityProvider(address quitor) external override {
-        //get back fragment votepass and eth reward than sell the votepass if hold amount large than _fragmentParam, ant left sell to other liquidity provider
+    //get back fragment votepass and eth reward than sell the votepass if hold amount large than _fragmentParam, ant left sell to other liquidity provider
+    function quitFromLiquidityProvider(
+        address payable quitor
+    ) external override {
+        if (msg.sender != TOMO_FRAGMENT_ENTRYPOINT)
+            revert Errors.NotTomoFragmentEntryPoint();
+        if (!_bLiquidityProvider[quitor])
+            revert Errors.JustLiquidityProviderCanQuit();
+        (uint256 fragmentVotePass, uint256 ethValue) = _quitFromLiquidity(
+            quitor,
+            _currentLiquidity
+        );
+        delete _bLiquidityProvider[quitor];
+        _fragBalance[quitor] = fragmentVotePass;
+        _sellFragmentKey(fragmentVotePass, 0, quitor);
+        if (ethValue > 0) {
+            (bool success, ) = quitor.call{value: ethValue}("");
+            if (!success) revert Errors.SendETHFailed();
+        }
+        _deleteQuitorLiquidityInfo(quitor);
     }
 
     /// @inheritdoc ITomoFragmentPool
+    function getVotePassAndEthIfQuit(
+        address quitor
+    ) external view override returns (uint256, uint256) {
+        (uint256 fragmentVotePass, uint256 ethValue) = _quitFromLiquidity(
+            quitor,
+            _currentLiquidity
+        );
+        return (fragmentVotePass, ethValue);
+    }
+
     function getFragmentParam() external view override returns (uint256) {
         return _fragmentParam;
     }
@@ -197,13 +205,27 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
     /// *****INTERNAL FUNCTIONS*****
     /// ****************************
 
-    function sellFragmentKey(
+    function _sellFragmentKey(
         uint256 amount,
-        uint256 priceSellToTomo,
-        uint256 price,
-        uint256 priceAfterFee,
+        uint256 minAcceptPrice,
         address payable seller
     ) private returns (uint256) {
+        bool bSellWholeKey = false;
+        uint256 priceSellToTomo = 0;
+        if (amount > _fragmentParam) {
+            (priceSellToTomo, amount) = _sellToTomo(amount, seller);
+            bSellWholeKey = true;
+        }
+        (uint256 price, uint256 priceAfterFee) = getSellPriceAfterFee(amount);
+        if (priceAfterFee < minAcceptPrice && !bSellWholeKey) {
+            revert Errors.LessThanMinAcceptPrice();
+        }
+        if (bSellWholeKey) {
+            if (address(this).balance < priceAfterFee) {
+                return priceSellToTomo;
+            }
+        }
+
         _currentLiquidity += amount;
         _fragBalance[seller] -= amount;
         (bool success, ) = seller.call{value: priceAfterFee}("");
@@ -214,7 +236,7 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         return priceSellToTomo + priceAfterFee;
     }
 
-    function sellToTomo(
+    function _sellToTomo(
         uint256 amount,
         address payable seller
     ) private returns (uint256, uint256) {
