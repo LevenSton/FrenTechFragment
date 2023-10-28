@@ -6,10 +6,10 @@ import {Errors} from "../libraries/Errors.sol";
 import {Events} from "../libraries/Events.sol";
 import {ITomo} from "../interfaces/ITomo.sol";
 import {FeeSplitter} from "./payment/FeeSplitter.sol";
-import {TomoFragmentEntryPoint} from "./TomoFragmentEntryPoint.sol";
+import {TomoHubEntryPoint} from "./TomoHubEntryPoint.sol";
 
 contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
-    address public immutable TOMO_FRAGMENT_ENTRYPOINT;
+    address public immutable TOMO_Hub_ENTRYPOINT;
     address public immutable TOMO_IMPL;
 
     uint256 public constant _keyLiquidityFeePercent = 300;
@@ -37,7 +37,7 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
     constructor(address tomoFragmentEntryPoint, address tomoImpl) {
         if (tomoImpl == address(0) || tomoFragmentEntryPoint == address(0))
             revert Errors.InitParamsInvalid();
-        TOMO_FRAGMENT_ENTRYPOINT = tomoFragmentEntryPoint;
+        TOMO_Hub_ENTRYPOINT = tomoFragmentEntryPoint;
         TOMO_IMPL = tomoImpl;
         _initialized = true;
     }
@@ -62,7 +62,7 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         _currentLiquidity = total;
         _fragmentParam = fragmentParam;
 
-        _addPayee(
+        _addLiquidityProvider(
             keyLiquidityProvider,
             keyAmount * _fragmentParam,
             block.timestamp
@@ -75,7 +75,7 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         uint256 maxAcceptPrice,
         address payable buyer
     ) external payable override returns (uint256) {
-        if (msg.sender != TOMO_FRAGMENT_ENTRYPOINT)
+        if (msg.sender != TOMO_Hub_ENTRYPOINT)
             revert Errors.NotTomoFragmentEntryPoint();
         if (_currentLiquidity < amount) revert Errors.LiquidityNotEnough();
         if (_bLiquidityProvider[buyer])
@@ -108,7 +108,7 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         uint256 minAcceptPrice,
         address payable seller
     ) external override returns (uint256) {
-        if (msg.sender != TOMO_FRAGMENT_ENTRYPOINT)
+        if (msg.sender != TOMO_Hub_ENTRYPOINT)
             revert Errors.NotTomoFragmentEntryPoint();
         if (_bLiquidityProvider[seller])
             revert Errors.LiquidityProviderCanNotSell();
@@ -122,7 +122,7 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         address keyLiquidityProvider,
         uint256 keyAmount
     ) external override {
-        if (msg.sender != TOMO_FRAGMENT_ENTRYPOINT)
+        if (msg.sender != TOMO_Hub_ENTRYPOINT)
             revert Errors.NotTomoFragmentEntryPoint();
         uint256 total = keyAmount * _fragmentParam;
         //_fragBalance[liquidityProvider] = total;
@@ -130,7 +130,7 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         _totalSupply += total;
         _currentLiquidity += total;
 
-        _addPayee(
+        _addLiquidityProvider(
             keyLiquidityProvider,
             keyAmount * _fragmentParam,
             block.timestamp
@@ -141,7 +141,7 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
     function addETHLiquidity(
         address payable ethLiquidityProvider
     ) external payable override returns (uint256) {
-        if (msg.sender != TOMO_FRAGMENT_ENTRYPOINT)
+        if (msg.sender != TOMO_Hub_ENTRYPOINT)
             revert Errors.NotTomoFragmentEntryPoint();
         uint256 keyPrice = ITomo(TOMO_IMPL).getBuyPrice(_subject, 0);
         //if msg.value less than one split key, revert.
@@ -155,7 +155,11 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
             (bool success, ) = ethLiquidityProvider.call{value: left}("");
             if (!success) revert Errors.SendETHFailed();
         }
-        _addPayee(ethLiquidityProvider, liquidityKeyAmount, block.timestamp);
+        _addLiquidityProvider(
+            ethLiquidityProvider,
+            liquidityKeyAmount,
+            block.timestamp
+        );
         return liquidityKeyAmount;
     }
 
@@ -164,7 +168,7 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
     function quitFromLiquidityProvider(
         address payable quitor
     ) external override {
-        if (msg.sender != TOMO_FRAGMENT_ENTRYPOINT)
+        if (msg.sender != TOMO_Hub_ENTRYPOINT)
             revert Errors.NotTomoFragmentEntryPoint();
         if (!_bLiquidityProvider[quitor])
             revert Errors.JustLiquidityProviderCanQuit();
@@ -245,7 +249,7 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
             _subject,
             wholeKeyAmount
         );
-        TomoFragmentEntryPoint(TOMO_FRAGMENT_ENTRYPOINT).sellVotePass(
+        TomoHubEntryPoint(TOMO_Hub_ENTRYPOINT).sellVotePass(
             _subject,
             seller,
             wholeKeyAmount

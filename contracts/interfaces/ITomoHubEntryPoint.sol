@@ -5,13 +5,13 @@ pragma solidity ^0.8.12;
 import {DataTypes} from "../libraries/DataTypes.sol";
 
 /**
- * @title ITomoFragment
+ * @title ITomoHubEntryPoint
  * @author Tomo Protocol
  *
  * @notice This is the interface for the TomoSplit contract, the main entry point for Buy/Sell Fragment.
  * You'll find all the events and external functions, as well as the reasoning behind them here.
  */
-interface ITomoFragmentEntryPoint {
+interface ITomoHubEntryPoint {
     /**
      * @notice initialize smart contract.
      * @param newGovernanceContractAddress The governance address to set.

@@ -2,9 +2,9 @@
 pragma solidity ^0.8.12;
 
 import {VersionedInitializable} from "../upgradeablity/VersionedInitializable.sol";
-import {ITomoFragmentEntryPoint} from "../interfaces/ITomoFragmentEntryPoint.sol";
+import {ITomoHubEntryPoint} from "../interfaces/ITomoHubEntryPoint.sol";
 import {ITomoFragmentPool} from "../interfaces/ITomoFragmentPool.sol";
-import {TomoFragmentStorage} from "./storage/TomoFragmentStorage.sol";
+import {TomoHubStorage} from "./storage/TomoHubStorage.sol";
 import {DataTypes} from "../libraries/DataTypes.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
@@ -12,10 +12,10 @@ import {Errors} from "../libraries/Errors.sol";
 import {Events} from "../libraries/Events.sol";
 import {ITomo} from "../interfaces/ITomo.sol";
 
-contract TomoFragmentEntryPoint is
+contract TomoHubEntryPoint is
     VersionedInitializable,
-    TomoFragmentStorage,
-    ITomoFragmentEntryPoint
+    TomoHubStorage,
+    ITomoHubEntryPoint
 {
     using EnumerableSet for EnumerableSet.UintSet;
 
@@ -35,7 +35,7 @@ contract TomoFragmentEntryPoint is
         TOMO_FRAGMENT_POOL_IMPL = tomoFragmentPoolImpl;
     }
 
-    /// @inheritdoc ITomoFragmentEntryPoint
+    /// @inheritdoc ITomoHubEntryPoint
     function initialize(
         address newGovernanceContractAddress,
         uint256 minPriceKeyCanFragment
@@ -48,7 +48,7 @@ contract TomoFragmentEntryPoint is
     /// *****About Fragment Pool Liquidity*****
     /// ***************************************
 
-    /// @inheritdoc ITomoFragmentEntryPoint
+    /// @inheritdoc ITomoHubEntryPoint
     function buyVotePassAndFragment(
         bytes32 subject,
         uint256 amount,
@@ -84,7 +84,7 @@ contract TomoFragmentEntryPoint is
         _sendToTomoFragmentPool(subject, amount, fragmentAmount);
     }
 
-    /// @inheritdoc ITomoFragmentEntryPoint
+    /// @inheritdoc ITomoHubEntryPoint
     function buyFragmentVotePass(
         bytes32 subject,
         uint256 amount,
@@ -102,7 +102,7 @@ contract TomoFragmentEntryPoint is
         _emitTradeFragmentSuccess(subject, msg.sender, amount, buyPrice, true);
     }
 
-    /// @inheritdoc ITomoFragmentEntryPoint
+    /// @inheritdoc ITomoHubEntryPoint
     function sellFragmentVotePass(
         bytes32 subject,
         uint256 amount,
@@ -128,7 +128,7 @@ contract TomoFragmentEntryPoint is
         );
     }
 
-    /// @inheritdoc ITomoFragmentEntryPoint
+    /// @inheritdoc ITomoHubEntryPoint
     //only call from fragment pool contract address
     function sellVotePass(
         bytes32 subject,
@@ -150,7 +150,7 @@ contract TomoFragmentEntryPoint is
         if (!success) revert Errors.SendETHFailed();
     }
 
-    /// @inheritdoc ITomoFragmentEntryPoint
+    /// @inheritdoc ITomoHubEntryPoint
     function addETHLiquidity(bytes32 subject) external payable override {
         address poolAddress = _subjectToFragmentPool[subject]
             .fragmentPoolAddress;
@@ -166,7 +166,7 @@ contract TomoFragmentEntryPoint is
         );
     }
 
-    /// @inheritdoc ITomoFragmentEntryPoint
+    /// @inheritdoc ITomoHubEntryPoint
     function quitFromLiquidityProvider(bytes32 subject) external override {
         address poolAddress = _subjectToFragmentPool[subject]
             .fragmentPoolAddress;
@@ -180,7 +180,7 @@ contract TomoFragmentEntryPoint is
     /// *****About lock/burn/transfer**********
     /// ***************************************
 
-    /// @inheritdoc ITomoFragmentEntryPoint
+    /// @inheritdoc ITomoHubEntryPoint
     function buyVotePassWithLockTimeStamp(
         bytes32 subject,
         uint256 amount,
@@ -209,7 +209,7 @@ contract TomoFragmentEntryPoint is
         _recordLockVotePassInfo(subject, amount, lockUntil);
     }
 
-    /// @inheritdoc ITomoFragmentEntryPoint
+    /// @inheritdoc ITomoHubEntryPoint
     function sellLockVotePass(
         uint256 lockIndex,
         uint256 amount,
@@ -249,7 +249,7 @@ contract TomoFragmentEntryPoint is
         );
     }
 
-    /// @inheritdoc ITomoFragmentEntryPoint
+    /// @inheritdoc ITomoHubEntryPoint
     function transferLockVotePass(
         uint256 lockIndex,
         address to
@@ -272,14 +272,14 @@ contract TomoFragmentEntryPoint is
     /// *****QUERY VIEW FUNCTIONS***
     /// ****************************
 
-    /// @inheritdoc ITomoFragmentEntryPoint
+    /// @inheritdoc ITomoHubEntryPoint
     function getAllLockIndexByAddress(
         address locker
     ) external view override returns (uint256[] memory) {
         return _userVotePassLockIds[locker].values();
     }
 
-    /// @inheritdoc ITomoFragmentEntryPoint
+    /// @inheritdoc ITomoHubEntryPoint
     function getLockInfoByIndex(
         uint256 index
     ) external view override returns (DataTypes.VotePassLockInfo memory) {

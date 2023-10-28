@@ -6,14 +6,14 @@ import {DataTypes} from "../../libraries/DataTypes.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 /**
- * @title TomoFragmentStorage
+ * @title TomoHubStorage
  * @author Tomo Protocol
  *
  * @notice This is an abstract contract that *only* contains storage for the TomoFragment contract. This
  * *must* be inherited last (bar interfaces) in order to preserve the TomoFragment storage layout. Adding
  * storage variables should be done solely at the bottom of this contract.
  */
-abstract contract TomoFragmentStorage {
+abstract contract TomoHubStorage {
     //map for subject to pool
     mapping(bytes32 => DataTypes.FragmentConfig)
         internal _subjectToFragmentPool;

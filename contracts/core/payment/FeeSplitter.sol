@@ -43,7 +43,7 @@ contract FeeSplitter is Context {
     mapping(address => EnumerableSet.UintSet) internal _userLiquidityLockIds;
     EnumerableSet.UintSet internal _allLiquidityIndex;
 
-    function _addPayee(
+    function _addLiquidityProvider(
         address liquidityProvider,
         uint256 shares,
         uint256 timeStamp
