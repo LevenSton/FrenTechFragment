@@ -28,4 +28,7 @@ library Errors {
     error VotePassNotEnough();
     error NotLockOwner();
     error CanNotSellBeforeDeadline();
+    error NotAvaiableAmount();
+    error NotContrainThisLockIndex();
+    error AlreadyContrainThisLockIndex();
 }

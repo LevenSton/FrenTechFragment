@@ -248,6 +248,12 @@ contract TomoFragmentEntryPoint is
     ) external override {
         if (_indexToVotePassLockInfo[lockIndex].owner != msg.sender)
             revert Errors.NotLockOwner();
+        if (_indexToVotePassLockInfo[lockIndex].amount == 0)
+            revert Errors.NotAvaiableAmount();
+        if (!_userVotePassLockIds[msg.sender].contains(lockIndex))
+            revert Errors.NotContrainThisLockIndex();
+        if (_userVotePassLockIds[to].contains(lockIndex))
+            revert Errors.AlreadyContrainThisLockIndex();
 
         _userVotePassLockIds[msg.sender].remove(lockIndex);
         _userVotePassLockIds[to].add(lockIndex);
