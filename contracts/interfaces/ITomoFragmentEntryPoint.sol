@@ -137,7 +137,8 @@ interface ITomoFragmentEntryPoint {
     function sellLockVotePass(
         uint256 lockIndex,
         uint256 amount,
-        uint256 minAcceptPrice
+        uint256 minAcceptPrice,
+        address payable receiveFund
     ) external;
 
     /**

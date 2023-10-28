@@ -205,7 +205,8 @@ contract TomoFragmentEntryPoint is
     function sellLockVotePass(
         uint256 lockIndex,
         uint256 amount,
-        uint256 minAcceptPrice
+        uint256 minAcceptPrice,
+        address payable receiveFund
     ) external override {
         if (_indexToVotePassLockInfo[lockIndex].owner != msg.sender)
             revert Errors.NotLockOwner();
@@ -229,9 +230,7 @@ contract TomoFragmentEntryPoint is
         }
         _indexToVotePassLockInfo[lockIndex].amount -= amount;
         ITomo(TOMO_IMPL).sellVotePass(subject, amount);
-        (bool success, ) = payable(msg.sender).call{value: sellPriceAfterFee}(
-            ""
-        );
+        (bool success, ) = receiveFund.call{value: sellPriceAfterFee}("");
         if (!success) revert Errors.SendETHFailed();
         _emitSellLockVotePass(
             subject,
