@@ -15,4 +15,11 @@ library DataTypes {
         address poolCreator;
         address fragmentPoolAddress;
     }
+
+    struct VotePassLockInfo {
+        bytes32 subject;
+        uint256 amount;
+        uint256 lockUntil;
+        address owner;
+    }
 }

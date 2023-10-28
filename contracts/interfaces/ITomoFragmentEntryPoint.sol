@@ -126,4 +126,43 @@ interface ITomoFragmentEntryPoint {
         bytes32[] calldata r,
         bytes32[] calldata s
     ) external payable;
+
+    /**
+     * @notice sell Vote Pass after be unlocked
+     *
+     * @param lockIndex locke index
+     * @param amount sell amount
+     * @param minAcceptPrice minAcceptPrice The min price seller can accept.
+     */
+    function sellLockVotePass(
+        uint256 lockIndex,
+        uint256 amount,
+        uint256 minAcceptPrice
+    ) external;
+
+    /**
+     * @notice transfer lock Vote Pass to other
+     *
+     * @param lockIndex locke index
+     * @param to the address receipt lock vote pass
+     */
+    function transferLockVotePass(uint256 lockIndex, address to) external;
+
+    /**
+     * @notice get all lock index by address
+     *
+     * @param locker locker address
+     */
+    function getAllLockIndexByAddress(
+        address locker
+    ) external view returns (uint256[] memory);
+
+    /**
+     * @notice get Lock Info by index
+     *
+     * @param index LockIndex
+     */
+    function getLockInfoByIndex(
+        uint256 index
+    ) external view returns (DataTypes.VotePassLockInfo memory);
 }

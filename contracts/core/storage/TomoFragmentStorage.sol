@@ -3,6 +3,7 @@
 pragma solidity ^0.8.12;
 
 import {DataTypes} from "../../libraries/DataTypes.sol";
+import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 /**
  * @title TomoFragmentStorage
@@ -18,6 +19,12 @@ abstract contract TomoFragmentStorage {
         internal _subjectToFragmentPool;
     //map for pool to subject
     mapping(address => bytes32) internal _fragmentPoolToSubject;
+
+    mapping(uint256 => DataTypes.VotePassLockInfo)
+        internal _indexToVotePassLockInfo;
+    mapping(address => EnumerableSet.UintSet) internal _userVotePassLockIds;
+
+    uint256 internal _globalLockIndex;
 
     uint256 internal _minPriceKeyCanFragment;
     address internal _governance;

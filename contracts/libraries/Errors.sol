@@ -26,4 +26,6 @@ library Errors {
     error CanNotBeZeroAddress();
     error ETHValueTooLow();
     error VotePassNotEnough();
+    error NotLockOwner();
+    error CanNotSellBeforeDeadline();
 }

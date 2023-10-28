@@ -23,7 +23,6 @@ library Events {
 
     event NewFragmentPoolCreate(
         bytes32 subject,
-        address keyOwner,
         address creator,
         address poolAddress,
         uint256 fragmentAmount
@@ -31,6 +30,7 @@ library Events {
 
     event AddFragmentKeyLiquidity(
         address fragmentPoolAddress,
+        address liquidityProvider,
         uint256 fragmentKeyLiquidity
     );
 
@@ -41,4 +41,14 @@ library Events {
         uint256 price,
         bool bBuy
     );
+
+    event SellLockVotePass(
+        bytes32 subject,
+        uint256 lockIndex,
+        uint256 amount,
+        uint256 sellPrice,
+        address seller
+    );
+
+    event TransferLockVotePass(uint256 lockIndex, address from, address to);
 }

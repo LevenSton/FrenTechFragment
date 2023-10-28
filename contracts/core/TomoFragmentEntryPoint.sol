@@ -5,6 +5,8 @@ import {VersionedInitializable} from "../upgradeablity/VersionedInitializable.so
 import {ITomoFragmentEntryPoint} from "../interfaces/ITomoFragmentEntryPoint.sol";
 import {ITomoFragmentPool} from "../interfaces/ITomoFragmentPool.sol";
 import {TomoFragmentStorage} from "./storage/TomoFragmentStorage.sol";
+import {DataTypes} from "../libraries/DataTypes.sol";
+import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 import {Errors} from "../libraries/Errors.sol";
 import {Events} from "../libraries/Events.sol";
@@ -15,6 +17,8 @@ contract TomoFragmentEntryPoint is
     TomoFragmentStorage,
     ITomoFragmentEntryPoint
 {
+    using EnumerableSet for EnumerableSet.UintSet;
+
     uint256 internal constant REVISION = 1;
     address internal immutable TOMO_IMPL;
     address internal immutable TOMO_FRAGMENT_POOL_IMPL;
@@ -168,6 +172,7 @@ contract TomoFragmentEntryPoint is
     /// *****About lock/burn/transfer**********
     /// ***************************************
 
+    /// @inheritdoc ITomoFragmentEntryPoint
     function buyVotePassWithLockTimeStamp(
         bytes32 subject,
         uint256 amount,
@@ -193,11 +198,99 @@ contract TomoFragmentEntryPoint is
             r,
             s
         );
+        _recordLockVotePassInfo(subject, amount, lockUntil);
+    }
+
+    /// @inheritdoc ITomoFragmentEntryPoint
+    function sellLockVotePass(
+        uint256 lockIndex,
+        uint256 amount,
+        uint256 minAcceptPrice
+    ) external override {
+        if (_indexToVotePassLockInfo[lockIndex].owner != msg.sender)
+            revert Errors.NotLockOwner();
+        if (_indexToVotePassLockInfo[lockIndex].lockUntil < block.timestamp)
+            revert Errors.CanNotSellBeforeDeadline();
+
+        uint256 lockAmount = _indexToVotePassLockInfo[lockIndex].amount;
+        if (amount > _indexToVotePassLockInfo[lockIndex].amount)
+            revert Errors.VotePassNotEnough();
+
+        bytes32 subject = _indexToVotePassLockInfo[lockIndex].subject;
+        uint256 sellPriceAfterFee = ITomo(TOMO_IMPL).getSellPriceAfterFee(
+            subject,
+            lockAmount
+        );
+        if (sellPriceAfterFee < minAcceptPrice)
+            revert Errors.LessThanMinAcceptPrice();
+        if (lockAmount == amount) {
+            delete _indexToVotePassLockInfo[lockIndex];
+            _userVotePassLockIds[msg.sender].remove(lockIndex);
+        }
+        _indexToVotePassLockInfo[lockIndex].amount -= amount;
+        ITomo(TOMO_IMPL).sellVotePass(subject, amount);
+        (bool success, ) = payable(msg.sender).call{value: sellPriceAfterFee}(
+            ""
+        );
+        if (!success) revert Errors.SendETHFailed();
+        _emitSellLockVotePass(
+            subject,
+            lockIndex,
+            amount,
+            sellPriceAfterFee,
+            msg.sender
+        );
+    }
+
+    /// @inheritdoc ITomoFragmentEntryPoint
+    function transferLockVotePass(
+        uint256 lockIndex,
+        address to
+    ) external override {
+        if (_indexToVotePassLockInfo[lockIndex].owner != msg.sender)
+            revert Errors.NotLockOwner();
+
+        _userVotePassLockIds[msg.sender].remove(lockIndex);
+        _userVotePassLockIds[to].add(lockIndex);
+        _emitTransferLockVotePass(lockIndex, msg.sender, to);
+    }
+
+    /// ****************************
+    /// *****QUERY VIEW FUNCTIONS***
+    /// ****************************
+
+    /// @inheritdoc ITomoFragmentEntryPoint
+    function getAllLockIndexByAddress(
+        address locker
+    ) external view override returns (uint256[] memory) {
+        return _userVotePassLockIds[locker].values();
+    }
+
+    /// @inheritdoc ITomoFragmentEntryPoint
+    function getLockInfoByIndex(
+        uint256 index
+    ) external view override returns (DataTypes.VotePassLockInfo memory) {
+        return _indexToVotePassLockInfo[index];
     }
 
     /// ****************************
     /// *****INTERNAL FUNCTIONS*****
     /// ****************************
+
+    function _recordLockVotePassInfo(
+        bytes32 subject,
+        uint256 amount,
+        uint256 lockUntil
+    ) private {
+        DataTypes.VotePassLockInfo
+            storage vpLockInfo = _indexToVotePassLockInfo[_globalLockIndex];
+        vpLockInfo.subject = subject;
+        vpLockInfo.amount = amount;
+        vpLockInfo.lockUntil = lockUntil;
+        vpLockInfo.owner = msg.sender;
+        _userVotePassLockIds[msg.sender].add(_globalLockIndex);
+        _globalLockIndex++;
+    }
 
     function _sendToTomoFragmentPool(
         bytes32 subject,
@@ -222,14 +315,12 @@ contract TomoFragmentEntryPoint is
                 amount
             );
             _subjectToFragmentPool[subject].subject = subject;
-            address subjectOwner = ITomo(TOMO_IMPL).getSubjectOwner(subject);
             _subjectToFragmentPool[subject].poolCreator = msg.sender;
             _subjectToFragmentPool[subject]
                 .fragmentPoolAddress = newFragmentPool;
             _fragmentPoolToSubject[newFragmentPool] = subject;
             _emitCreateNewFragmentPool(
                 subject,
-                subjectOwner,
                 msg.sender,
                 newFragmentPool,
                 fragmentAmount
@@ -238,20 +329,19 @@ contract TomoFragmentEntryPoint is
         _subjectToFragmentPool[subject].holdAmount += amount;
         _emitAddKeyLiquidity(
             _subjectToFragmentPool[subject].fragmentPoolAddress,
+            msg.sender,
             amount
         );
     }
 
     function _emitCreateNewFragmentPool(
         bytes32 subject,
-        address keyOwner,
         address creator,
         address poolAddress,
         uint256 fragmentAmount
     ) private {
         emit Events.NewFragmentPoolCreate(
             subject,
-            keyOwner,
             creator,
             poolAddress,
             fragmentAmount
@@ -270,9 +360,38 @@ contract TomoFragmentEntryPoint is
 
     function _emitAddKeyLiquidity(
         address poolAddress,
+        address liquidityProvider,
         uint256 liquidity
     ) private {
-        emit Events.AddFragmentKeyLiquidity(poolAddress, liquidity);
+        emit Events.AddFragmentKeyLiquidity(
+            poolAddress,
+            liquidityProvider,
+            liquidity
+        );
+    }
+
+    function _emitSellLockVotePass(
+        bytes32 subject,
+        uint256 lockIndex,
+        uint256 amount,
+        uint256 sellPrice,
+        address seller
+    ) private {
+        emit Events.SellLockVotePass(
+            subject,
+            lockIndex,
+            amount,
+            sellPrice,
+            seller
+        );
+    }
+
+    function _emitTransferLockVotePass(
+        uint256 lockIndex,
+        address from,
+        address to
+    ) private {
+        emit Events.TransferLockVotePass(lockIndex, from, to);
     }
 
     function _setGovernance(address newGovernance) internal {
