@@ -22,6 +22,10 @@ interface ITomoFragmentEntryPoint {
         uint256 minPriceKeyCanFragment
     ) external;
 
+    /// ***************************************
+    /// *****About Fragment Pool Liquidity*****
+    /// ***************************************
+
     /**
      * @notice Buy And Fragment Key/Vote.
      * @param subject Identity of one tomo.
@@ -81,4 +85,45 @@ interface ITomoFragmentEntryPoint {
         address seller,
         uint256 amount
     ) external;
+
+    /**
+     * @notice add eth liquidity for key pool.
+     * only can be called from FragmentPool address to help sell whole key to tomo
+     *
+     * @param subject Identity of one tomo.
+     */
+    function addETHLiquidity(bytes32 subject) external payable;
+
+    /**
+     * @notice quit from liquidity provider, get back all votepass and eth reward.
+     * send whole votepass to tomo contract, if have left fragment votepass, become a normal user who hold fragment vote pass, than can sell to other liquidity provider
+     * only can be called from FragmentPool address to help sell whole key to tomo
+     *
+     * @param subject Identity of one tomo.
+     */
+    function quitFromLiquidityProvider(bytes32 subject) external;
+
+    /// ***************************************
+    /// *****About lock/burn/transfer**********
+    /// ***************************************
+
+    /**
+     * @notice buy VotePass and set a lock time, can sell if timestame less than you set
+     *
+     * @param subject Identity of one tomo.
+     * @param amount The buy amount.
+     * @param maxAcceptPrice The max price that call can pay for amount key.
+     * @param v The V of signature
+     * @param r The r of signature
+     * @param s The s of signature
+     */
+    function buyVotePassWithLockTimeStamp(
+        bytes32 subject,
+        uint256 amount,
+        uint256 maxAcceptPrice,
+        uint256 lockUntil,
+        uint8[] calldata v,
+        bytes32[] calldata r,
+        bytes32[] calldata s
+    ) external payable;
 }

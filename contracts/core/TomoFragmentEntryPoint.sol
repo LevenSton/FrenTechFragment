@@ -24,17 +24,11 @@ contract TomoFragmentEntryPoint is
      *
      * @param tomoImpl The Tomo Protocol implementation address.
      * @param tomoFragmentPoolImpl The Tomo FragmentPool implementation address.
-     * @param keyMinPrice The min price of one key can Fragment
      */
-    constructor(
-        address tomoImpl,
-        address tomoFragmentPoolImpl,
-        uint256 keyMinPrice
-    ) {
+    constructor(address tomoImpl, address tomoFragmentPoolImpl) {
         if (tomoImpl == address(0)) revert Errors.InitParamsInvalid();
         TOMO_IMPL = tomoImpl;
         TOMO_FRAGMENT_POOL_IMPL = tomoFragmentPoolImpl;
-        _minPriceKeyCanFragment = keyMinPrice;
     }
 
     /// @inheritdoc ITomoFragmentEntryPoint
@@ -46,6 +40,10 @@ contract TomoFragmentEntryPoint is
         _minPriceKeyCanFragment = minPriceKeyCanFragment;
     }
 
+    /// ***************************************
+    /// *****About Fragment Pool Liquidity*****
+    /// ***************************************
+
     /// @inheritdoc ITomoFragmentEntryPoint
     function buyVotePassAndFragment(
         bytes32 subject,
@@ -56,17 +54,21 @@ contract TomoFragmentEntryPoint is
         bytes32[] calldata r,
         bytes32[] calldata s
     ) external payable override {
+        //check if the key price enough for fragmention
         uint256 currentPrice = ITomo(TOMO_IMPL).getBuyPrice(subject, 0);
         if (currentPrice < _minPriceKeyCanFragment)
             revert Errors.KeyPriceTooLowCanNotBeFragment();
 
+        //check if msg.value enough to buy amount key
         uint256 priceAfterFee = ITomo(TOMO_IMPL).getBuyPriceAfterFee(
             subject,
             amount
         );
         if (msg.value < priceAfterFee) revert Errors.FundsNotEnough();
+        //check if price lower than maxAcceptPrice
         if (priceAfterFee > maxAcceptPrice)
             revert Errors.LargeThanMaxAcceptPrice();
+        //buy amount key
         ITomo(TOMO_IMPL).buyVotePass{value: msg.value}(
             subject,
             amount,
@@ -74,6 +76,7 @@ contract TomoFragmentEntryPoint is
             r,
             s
         );
+        //record to fragment pool
         _sendToTomoFragmentPool(subject, amount, fragmentAmount);
     }
 
@@ -83,13 +86,16 @@ contract TomoFragmentEntryPoint is
         uint256 amount,
         uint256 maxAcceptPrice
     ) external payable override {
+        //check if subject fragment pool exist
         address poolAddress = _subjectToFragmentPool[subject]
             .fragmentPoolAddress;
         if (poolAddress == address(0)) revert Errors.FragmentPoolNotExist();
+        //buy amount fragment key
         uint256 buyPrice = ITomoFragmentPool(poolAddress).buyFragmentVotePass{
             value: msg.value
         }(amount, maxAcceptPrice, payable(msg.sender));
-        _emitBuyFragmentSuccess(subject, msg.sender, amount, buyPrice);
+        //emit event
+        _emitTradeFragmentSuccess(subject, msg.sender, amount, buyPrice, true);
     }
 
     /// @inheritdoc ITomoFragmentEntryPoint
@@ -98,18 +104,28 @@ contract TomoFragmentEntryPoint is
         uint256 amount,
         uint256 minAcceptPrice
     ) external override {
+        //check if subject fragment pool exist
         address poolAddress = _subjectToFragmentPool[subject]
             .fragmentPoolAddress;
         if (poolAddress == address(0)) revert Errors.FragmentPoolNotExist();
+        //sell amount fragment key
         uint256 sellPrice = ITomoFragmentPool(poolAddress).sellFragmentVotePass(
             amount,
             minAcceptPrice,
             payable(msg.sender)
         );
-        _emitSellFragmentSuccess(subject, msg.sender, amount, sellPrice);
+        //emit event
+        _emitTradeFragmentSuccess(
+            subject,
+            msg.sender,
+            amount,
+            sellPrice,
+            false
+        );
     }
 
     /// @inheritdoc ITomoFragmentEntryPoint
+    //only call from fragment pool contract address
     function sellVotePass(
         bytes32 subject,
         address seller,
@@ -117,14 +133,66 @@ contract TomoFragmentEntryPoint is
     ) external override {
         if (_fragmentPoolToSubject[msg.sender] != subject)
             revert Errors.CallerNeedBeFragmentPool();
+        if (_subjectToFragmentPool[subject].holdAmount < amount)
+            revert Errors.VotePassNotEnough();
 
         uint256 sellPriceAfterFee = ITomo(TOMO_IMPL).getSellPriceAfterFee(
             subject,
             amount
         );
+        _subjectToFragmentPool[subject].holdAmount -= amount;
         ITomo(TOMO_IMPL).sellVotePass(subject, amount);
         (bool success, ) = seller.call{value: sellPriceAfterFee}("");
         if (!success) revert Errors.SendETHFailed();
+    }
+
+    /// @inheritdoc ITomoFragmentEntryPoint
+    function addETHLiquidity(bytes32 subject) external payable override {
+        address poolAddress = _subjectToFragmentPool[subject]
+            .fragmentPoolAddress;
+        if (poolAddress == address(0)) revert Errors.FragmentPoolNotExist();
+        ITomoFragmentPool(poolAddress).addETHLiquidity{value: msg.value}(
+            payable(msg.sender)
+        );
+    }
+
+    /// @inheritdoc ITomoFragmentEntryPoint
+    function quitFromLiquidityProvider(bytes32 subject) external override {
+        address poolAddress = _subjectToFragmentPool[subject]
+            .fragmentPoolAddress;
+        if (poolAddress == address(0)) revert Errors.FragmentPoolNotExist();
+        ITomoFragmentPool(poolAddress).quitFromLiquidityProvider(msg.sender);
+    }
+
+    /// ***************************************
+    /// *****About lock/burn/transfer**********
+    /// ***************************************
+
+    function buyVotePassWithLockTimeStamp(
+        bytes32 subject,
+        uint256 amount,
+        uint256 maxAcceptPrice,
+        uint256 lockUntil,
+        uint8[] calldata v,
+        bytes32[] calldata r,
+        bytes32[] calldata s
+    ) external payable override {
+        uint256 priceAfterFee = ITomo(TOMO_IMPL).getBuyPriceAfterFee(
+            subject,
+            amount
+        );
+        if (msg.value < priceAfterFee) revert Errors.FundsNotEnough();
+        //check if price lower than maxAcceptPrice
+        if (priceAfterFee > maxAcceptPrice)
+            revert Errors.LargeThanMaxAcceptPrice();
+        //buy amount key
+        ITomo(TOMO_IMPL).buyVotePass{value: msg.value}(
+            subject,
+            amount,
+            v,
+            r,
+            s
+        );
     }
 
     /// ****************************
@@ -155,7 +223,6 @@ contract TomoFragmentEntryPoint is
             );
             _subjectToFragmentPool[subject].subject = subject;
             address subjectOwner = ITomo(TOMO_IMPL).getSubjectOwner(subject);
-            _subjectToFragmentPool[subject].subjectOwner = subjectOwner;
             _subjectToFragmentPool[subject].poolCreator = msg.sender;
             _subjectToFragmentPool[subject]
                 .fragmentPoolAddress = newFragmentPool;
@@ -191,22 +258,14 @@ contract TomoFragmentEntryPoint is
         );
     }
 
-    function _emitBuyFragmentSuccess(
-        bytes32 subject,
-        address buyer,
-        uint256 amount,
-        uint256 price
-    ) private {
-        emit Events.BuyFragmentSuccess(subject, buyer, amount, price);
-    }
-
-    function _emitSellFragmentSuccess(
+    function _emitTradeFragmentSuccess(
         bytes32 subject,
         address seller,
         uint256 amount,
-        uint256 price
+        uint256 price,
+        bool bBuy
     ) private {
-        emit Events.SellFragmentSuccess(subject, seller, amount, price);
+        emit Events.TradeFragmentSuccess(subject, seller, amount, price, bBuy);
     }
 
     function _emitAddKeyLiquidity(

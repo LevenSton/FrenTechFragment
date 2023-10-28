@@ -24,4 +24,6 @@ library Errors {
     error FragmentPoolNotExist();
     error CallerNeedBeFragmentPool();
     error CanNotBeZeroAddress();
+    error ETHValueTooLow();
+    error VotePassNotEnough();
 }

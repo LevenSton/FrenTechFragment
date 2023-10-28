@@ -68,10 +68,20 @@ interface ITomoFragmentPool {
      *
      * @param ethLiquidityProvider The eth provider address.
      */
-    function addETHLiquidity(address ethLiquidityProvider) external payable;
+    function addETHLiquidity(
+        address payable ethLiquidityProvider
+    ) external payable;
 
     /**
      * @notice get fragment param.
      */
     function getFragmentParam() external view returns (uint256);
+
+    /**
+     * @notice quit from liquidity provider, get back all votepass and eth reward.
+     * if hold amount large than _fragmentParam, sell whole votepass to tomo contract, if any left fragment votepass, sell to other liquidity provider
+     *
+     * @param quitor Address who want to quit liquidity provider.
+     */
+    function quitFromLiquidityProvider(address quitor) external;
 }

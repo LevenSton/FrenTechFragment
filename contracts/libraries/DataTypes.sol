@@ -12,7 +12,6 @@ library DataTypes {
     struct FragmentConfig {
         bytes32 subject;
         uint256 holdAmount;
-        address subjectOwner;
         address poolCreator;
         address fragmentPoolAddress;
     }

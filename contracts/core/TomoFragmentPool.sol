@@ -56,14 +56,17 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         _subjectOwner = subjectOwner;
         _subject = subject;
         uint256 total = keyAmount * fragmentParam;
-        //_fragBalance[liquidityProvider] = total;
+        //_fragBalance[keyLiquidityProvider] = total;
         _bLiquidityProvider[keyLiquidityProvider] = true;
         _totalSupply = total;
         _currentLiquidity = total;
         _fragmentParam = fragmentParam;
 
-        uint256 keyPrice = ITomo(TOMO_IMPL).getBuyPrice(_subject, 0);
-        _addPayee(keyLiquidityProvider, keyPrice * keyAmount, block.timestamp);
+        _addPayee(
+            keyLiquidityProvider,
+            keyAmount * _fragmentParam,
+            block.timestamp
+        );
     }
 
     /// @inheritdoc ITomoFragmentPool
@@ -148,17 +151,37 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         _totalSupply += total;
         _currentLiquidity += total;
 
-        uint256 keyPrice = ITomo(TOMO_IMPL).getBuyPrice(_subject, 0);
-        _addPayee(keyLiquidityProvider, keyPrice * keyAmount, block.timestamp);
+        _addPayee(
+            keyLiquidityProvider,
+            keyAmount * _fragmentParam,
+            block.timestamp
+        );
     }
 
     /// @inheritdoc ITomoFragmentPool
     function addETHLiquidity(
-        address ethLiquidityProvider
+        address payable ethLiquidityProvider
     ) external payable override {
         if (msg.sender != TOMO_FRAGMENT_ENTRYPOINT)
             revert Errors.NotTomoFragmentEntryPoint();
-        _addPayee(ethLiquidityProvider, msg.value, block.timestamp);
+        uint256 keyPrice = ITomo(TOMO_IMPL).getBuyPrice(_subject, 0);
+        //if msg.value less than one split key, revert.
+        if (msg.value * _fragmentParam < keyPrice)
+            revert Errors.ETHValueTooLow();
+        uint256 liquidityKeyAmount = (msg.value * _fragmentParam) / keyPrice;
+        if (msg.value > (liquidityKeyAmount * keyPrice) / _fragmentParam) {
+            uint256 left = msg.value -
+                (liquidityKeyAmount * keyPrice) /
+                _fragmentParam;
+            (bool succuss, ) = ethLiquidityProvider.call{value: left}("");
+            if (!succuss) revert Errors.SendETHFailed();
+        }
+        _addPayee(ethLiquidityProvider, liquidityKeyAmount, block.timestamp);
+    }
+
+    /// @inheritdoc ITomoFragmentPool
+    function quitFromLiquidityProvider(address quitor) external override {
+        //get back fragment votepass and eth reward than sell the votepass if hold amount large than _fragmentParam, ant left sell to other liquidity provider
     }
 
     /// @inheritdoc ITomoFragmentPool

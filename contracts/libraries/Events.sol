@@ -34,17 +34,11 @@ library Events {
         uint256 fragmentKeyLiquidity
     );
 
-    event BuyFragmentSuccess(
+    event TradeFragmentSuccess(
         bytes32 subject,
         address buyer,
         uint256 amount,
-        uint256 price
-    );
-
-    event SellFragmentSuccess(
-        bytes32 subject,
-        address seller,
-        uint256 amount,
-        uint256 price
+        uint256 price,
+        bool bBuy
     );
 }
