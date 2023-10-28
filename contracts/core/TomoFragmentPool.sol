@@ -12,8 +12,7 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
     address public immutable TOMO_Hub_ENTRYPOINT;
     address public immutable TOMO_IMPL;
 
-    uint256 public constant _keyLiquidityFeePercent = 300;
-    uint256 public constant _ethLiquidityFeePercent = 500;
+    uint256 public constant _liquidityProviderFeePercent = 800;
     uint256 public constant _protocolFeePercent = 200;
 
     address internal _protocolFeeAddress;
@@ -267,9 +266,7 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         uint256 keyPrice = ITomo(TOMO_IMPL).getBuyPrice(_subject, 0);
         uint256 price = (keyPrice * amount) / _fragmentParam;
         uint256 fee = (price *
-            (_keyLiquidityFeePercent +
-                _ethLiquidityFeePercent +
-                _protocolFeePercent)) / BPS_MAX;
+            (_liquidityProviderFeePercent + _protocolFeePercent)) / BPS_MAX;
         return (price, price - fee);
     }
 
@@ -279,9 +276,7 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         uint256 keyPrice = ITomo(TOMO_IMPL).getBuyPrice(_subject, 0);
         uint256 price = (keyPrice * amount) / _fragmentParam;
         uint256 fee = (price *
-            (_keyLiquidityFeePercent +
-                _ethLiquidityFeePercent +
-                _protocolFeePercent)) / BPS_MAX;
+            (_liquidityProviderFeePercent + _protocolFeePercent)) / BPS_MAX;
         return (price, price + fee);
     }
 }

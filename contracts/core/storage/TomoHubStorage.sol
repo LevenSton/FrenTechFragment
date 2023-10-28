@@ -17,15 +17,23 @@ abstract contract TomoHubStorage {
     //map for subject to pool
     mapping(bytes32 => DataTypes.FragmentConfig)
         internal _subjectToFragmentPool;
+
     //map for pool to subject
     mapping(address => bytes32) internal _fragmentPoolToSubject;
 
+    //map for lockindex to LockInfo
     mapping(uint256 => DataTypes.VotePassLockInfo)
         internal _indexToVotePassLockInfo;
+
+    //map for user address to lockindex set
     mapping(address => EnumerableSet.UintSet) internal _userVotePassLockIds;
 
+    //global lock index, increment
     uint256 internal _globalLockIndex;
 
+    // the min price of one key which can be fragmention
     uint256 internal _minPriceKeyCanFragment;
+
+    //governance address
     address internal _governance;
 }
