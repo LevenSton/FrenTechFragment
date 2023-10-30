@@ -3,6 +3,7 @@
 pragma solidity ^0.8.12;
 
 library Errors {
+    error NotGovernance();
     error CannotInitImplementation();
     error Initialized();
     error InitParamsInvalid();

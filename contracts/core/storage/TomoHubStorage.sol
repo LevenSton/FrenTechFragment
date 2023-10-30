@@ -28,12 +28,14 @@ abstract contract TomoHubStorage {
     //map for user address to lockindex set
     mapping(address => EnumerableSet.UintSet) internal _userVotePassLockIds;
 
+    DataTypes.TomoHubEntryPointState public _state;
+
     //global lock index, increment
-    uint256 internal _globalLockIndex;
+    uint256 public _globalLockIndex;
 
     // the min price of one key which can be fragmention
-    uint256 internal _minPriceKeyCanFragment;
+    uint256 public _minPriceKeyCanFragment;
 
     //governance address
-    address internal _governance;
+    address public _governance;
 }

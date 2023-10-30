@@ -21,6 +21,20 @@ library Events {
         uint256 timestamp
     );
 
+    event StateSet(
+        address indexed caller,
+        DataTypes.TomoHubEntryPointState indexed prevState,
+        DataTypes.TomoHubEntryPointState indexed newState,
+        uint256 timestamp
+    );
+
+    event MinPriceKeyCanFragment(
+        address indexed caller,
+        uint256 indexed preMinPriceKeyCanFragment,
+        uint256 indexed newMinPriceKeyCanFragment,
+        uint256 timestamp
+    );
+
     event NewFragmentPoolCreate(
         bytes32 subject,
         address creator,

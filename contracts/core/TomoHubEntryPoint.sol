@@ -23,6 +23,11 @@ contract TomoHubEntryPoint is
     address internal immutable TOMO_IMPL;
     address internal immutable TOMO_FRAGMENT_POOL_IMPL;
 
+    modifier onlyGov() {
+        _validateCallerIsGovernance();
+        _;
+    }
+
     /**
      * @dev The constructor sets the immutable Tomo implementations.
      *
@@ -30,18 +35,38 @@ contract TomoHubEntryPoint is
      * @param tomoFragmentPoolImpl The Tomo FragmentPool implementation address.
      */
     constructor(address tomoImpl, address tomoFragmentPoolImpl) {
-        if (tomoImpl == address(0)) revert Errors.InitParamsInvalid();
+        if (tomoImpl == address(0) || tomoFragmentPoolImpl == address(0))
+            revert Errors.InitParamsInvalid();
         TOMO_IMPL = tomoImpl;
         TOMO_FRAGMENT_POOL_IMPL = tomoFragmentPoolImpl;
     }
 
     /// @inheritdoc ITomoHubEntryPoint
     function initialize(
-        address newGovernanceContractAddress,
-        uint256 minPriceKeyCanFragment
+        address newGovernanceContractAddress
     ) external override initializer {
+        _setState(DataTypes.TomoHubEntryPointState.Paused);
         _setGovernance(newGovernanceContractAddress);
-        _minPriceKeyCanFragment = minPriceKeyCanFragment;
+    }
+
+    /// ***********************
+    /// *****GOV FUNCTIONS*****
+    /// ***********************
+
+    function setGovernance(address newGovernance) external override onlyGov {
+        _setGovernance(newGovernance);
+    }
+
+    function setState(
+        DataTypes.TomoHubEntryPointState newState
+    ) external override onlyGov {
+        _setState(newState);
+    }
+
+    function setMinPriceKeyCanFragment(
+        uint256 minPrice
+    ) external override onlyGov {
+        _setMinPriceKeyCanFragment(minPrice);
     }
 
     /// ***************************************
@@ -417,6 +442,27 @@ contract TomoHubEntryPoint is
             msg.sender,
             prevGovernance,
             newGovernance,
+            block.timestamp
+        );
+    }
+
+    function _validateCallerIsGovernance() internal view {
+        if (msg.sender != _governance) revert Errors.NotGovernance();
+    }
+
+    function _setState(DataTypes.TomoHubEntryPointState newState) internal {
+        DataTypes.TomoHubEntryPointState prevState = _state;
+        _state = newState;
+        emit Events.StateSet(msg.sender, prevState, newState, block.timestamp);
+    }
+
+    function _setMinPriceKeyCanFragment(uint256 newPrice) internal {
+        uint256 prevMinPrice = _minPriceKeyCanFragment;
+        _minPriceKeyCanFragment = newPrice;
+        emit Events.MinPriceKeyCanFragment(
+            msg.sender,
+            prevMinPrice,
+            _minPriceKeyCanFragment,
             block.timestamp
         );
     }

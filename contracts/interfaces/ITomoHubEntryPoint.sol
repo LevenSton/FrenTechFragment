@@ -15,12 +15,8 @@ interface ITomoHubEntryPoint {
     /**
      * @notice initialize smart contract.
      * @param newGovernanceContractAddress The governance address to set.
-     * @param minPriceKeyCanFragment The Min Price of key can fragment.
      */
-    function initialize(
-        address newGovernanceContractAddress,
-        uint256 minPriceKeyCanFragment
-    ) external;
+    function initialize(address newGovernanceContractAddress) external;
 
     /// ***************************************
     /// *****About Fragment Pool Liquidity*****
@@ -166,4 +162,25 @@ interface ITomoHubEntryPoint {
     function getLockInfoByIndex(
         uint256 index
     ) external view returns (DataTypes.VotePassLockInfo memory);
+
+    /**
+     * @notice set new governance address
+     *
+     * @param newGovernance new address
+     */
+    function setGovernance(address newGovernance) external;
+
+    /**
+     * @notice set new state of TomoHubEntryPoint
+     *
+     * @param newState new state
+     */
+    function setState(DataTypes.TomoHubEntryPointState newState) external;
+
+    /**
+     * @notice set min price of one key/vote can fragment
+     *
+     * @param minPrice new min price
+     */
+    function setMinPriceKeyCanFragment(uint256 minPrice) external;
 }

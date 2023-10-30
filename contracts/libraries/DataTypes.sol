@@ -9,6 +9,11 @@ pragma solidity ^0.8.12;
  * @notice A standard library of data types used throughout the TomoFragment.
  */
 library DataTypes {
+    enum TomoHubEntryPointState {
+        Open,
+        Paused
+    }
+
     struct FragmentConfig {
         bytes32 subject;
         uint256 holdAmount;
