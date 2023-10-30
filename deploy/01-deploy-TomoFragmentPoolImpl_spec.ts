@@ -3,10 +3,9 @@ import { DeployFunction } from 'hardhat-deploy/dist/types'
 import { hexlify, keccak256, RLP } from 'ethers/lib/utils'
 import {
   deployAndVerifyAndThen,
-  getContractFromArtifact,
 } from '../scripts/deploy-utils'
 
-const TOMO_IMPL = "";
+const TOMO_IMPL = "0x9e813d7661d7b56cbcd3f73e958039b208925ef8";
 
 const deployFn: DeployFunction = async (hre) => {
 

@@ -42,6 +42,14 @@ const config: HardhatUserConfig = {
       gasPrice: 1000000000,
     },
   },
+  namedAccounts: {
+    deployer: {
+      default: 0,
+    },
+    governance: {
+      default: 1,
+    }
+  },
 };
 
 export default config;
