@@ -3,6 +3,9 @@ import { DeployFunction } from 'hardhat-deploy/dist/types'
 import { hexlify, keccak256, RLP } from 'ethers/lib/utils'
 import {
   deployAndVerifyAndThen,
+  getContractFromArtifact,
+  getTomoImplAddr,
+  isHardhatNode
 } from '../scripts/deploy-utils'
 
 const TOMO_IMPL = "0x9e813d7661d7b56cbcd3f73e958039b208925ef8";
@@ -15,7 +18,16 @@ const deployFn: DeployFunction = async (hre) => {
   const TomoHubEntryPointProxyNonce = hexlify(deployerNonce + 1);
   const TomoHubEntryPointProxyAddress =
         '0x' + keccak256(RLP.encode([deployer, TomoHubEntryPointProxyNonce])).substr(26);
-        
+  
+  let TOMO_IMPL = await getTomoImplAddr(hre);
+  if((await isHardhatNode(hre)))
+  {
+      const TOMO = await getContractFromArtifact(
+            hre,
+            "Tomo"
+      )
+      TOMO_IMPL = TOMO.address
+  }
   await deployAndVerifyAndThen({
       hre,
       name: "TomoFragmentPoolImpl",

@@ -1,6 +1,7 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import * as dotenv from 'dotenv'
+import '@primitivefi/hardhat-dodoc'
 import 'hardhat-deploy'
 
 dotenv.config()
@@ -41,6 +42,13 @@ const config: HardhatUserConfig = {
       accounts: [deployer, governance],
       gasPrice: 1000000000,
     },
+  },
+  paths: {
+    deploy: './deploy',
+    deployments: './deployments',
+  },
+  dodoc: {
+    runOnCompile: true,
   },
   namedAccounts: {
     deployer: {

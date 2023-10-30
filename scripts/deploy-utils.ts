@@ -1,6 +1,7 @@
 import { ethers, Contract } from 'ethers'
 import { Provider } from '@ethersproject/abstract-provider'
 import { Signer } from '@ethersproject/abstract-signer'
+import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
 /**
  * @param  {Any} hre Hardhat runtime environment
@@ -192,9 +193,19 @@ export const getContractFromArtifact = async (
   })
 }
 
-export const isHardhatNode = async (hre) => {
+export const isHardhatNode = async (hre: HardhatRuntimeEnvironment) => {
   const chainId = hre.network.config.chainId;
   return chainId === 31337
+}
+
+export const getTomoImplAddr = async (hre: HardhatRuntimeEnvironment) =>  {
+  const chainId = hre.network.config.chainId;
+  if(chainId === 59140){
+    return process.env.TOMO_ADDRESS_LINEA_TESTNET  || ''
+  }else if(chainId === 59144){
+    return process.env.TOMO_ADDRESS_LINEA_MAINNET || ''
+  }
+  return ''
 }
 
 // Large balance to fund accounts with.
