@@ -140,23 +140,27 @@ makeSuiteCleanRoom('Sell Fragment Vote Pass', function () {
         })
 
         context('Scenarios', function () {
-            // it('Get correct variable if buy fragment vote pass success.',   async function () {
-            //     const poolAddress = (await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).fragmentPoolAddress;
-            //     expect(await ethers.provider.getBalance(poolAddress)).to.equal(0);
-
-            //     const fragmentPool = TomoFragmentPool__factory.connect(poolAddress, userTwo);
-            //     const price = await fragmentPool.getBuyPriceAfterFee(100);
-            //     await expect(tomoHubEntryPointProxy.connect(userTwo).buyFragmentVotePass(
-            //         subject1,
-            //         100,
-            //         price[1],
-            //         {value: price[1]}
-            //     )).to.not.reverted
-            //     expect(await fragmentPool._fragBalance(userTwoAddress)).to.equal(100);
-            //     expect(await fragmentPool._currentLiquidity()).to.eq(buyAmountForFragment * 1000 - 100);
-            //     const contractBalance = await ethers.provider.getBalance(poolAddress)
-            //     expect(contractBalance).to.equal(price[1].sub(price[0].mul(200).div(10000)))
-            // });
+            it('Get correct variable if sell fragment success.',   async function () {
+                const poolAddress = (await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).fragmentPoolAddress;
+                const fragmentPool = TomoFragmentPool__factory.connect(poolAddress, userTwo);
+                const price = await fragmentPool.getSellPriceAfterFee(50);
+                const beforeBalance = await ethers.provider.getBalance(userTwoAddress);
+                const txResp = await tomoHubEntryPointProxy.connect(userTwo).sellFragmentVotePass(
+                    subject1,
+                    50,
+                    price[1]
+                )
+                const txReceipt = await txResp.wait();
+                // await expect(tomoHubEntryPointProxy.connect(userTwo).sellFragmentVotePass(
+                //     subject1,
+                //     50,
+                //     price[1]
+                // )).to.not.be.reverted;
+                const gasEth =  txReceipt.gasUsed.mul(txReceipt.effectiveGasPrice)
+                expect(await fragmentPool._fragBalance(userTwoAddress)).to.equal(50);
+                const afterBalance = await ethers.provider.getBalance(userTwoAddress);
+                expect((beforeBalance).sub(gasEth).add(price[1])).to.equal(afterBalance);
+            });
         })
     })
 })
