@@ -76,6 +76,29 @@ get total price after fee with buy amout key of subject.
 |---|---|---|
 | _0 | uint256 | undefined |
 
+### getPrice
+
+```solidity
+function getPrice(uint256 supply, uint256 amount) external pure returns (uint256)
+```
+
+
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| supply | uint256 | undefined |
+| amount | uint256 | undefined |
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | uint256 | undefined |
+
 ### getSellPrice
 
 ```solidity

@@ -108,9 +108,9 @@ contract Tomo is Ownable, ReentrancyGuard {
         }
 
         protocolFeeTo = msg.sender;
-        protocolFeePercent = 0.03 ether; // 3%
-        subjectFeePercent = 0.04 ether; // 4%
-        rewardFeePercent = 0.03 ether; // 3%
+        protocolFeePercent = 0.05 ether; // 5%
+        subjectFeePercent = 0.05 ether; // 5%
+        rewardFeePercent = 0 ether; // 3%
         claimedPeriod = 3 days;
 
         uint256 chainId;

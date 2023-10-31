@@ -110,4 +110,9 @@ interface ITomo {
         bytes32 subject,
         address account
     ) external view returns (uint256);
+
+    function getPrice(
+        uint256 supply,
+        uint256 amount
+    ) external pure returns (uint256);
 }

@@ -51,7 +51,7 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         if (_initialized) revert Errors.Initialized();
         _initialized = true;
         address subjectOwner = ITomo(TOMO_IMPL).getSubjectOwner(subject);
-        if (subjectOwner == address(0)) revert Errors.SubjectNotExist();
+        //if (subjectOwner == address(0)) revert Errors.SubjectNotExist();
         _subjectOwner = subjectOwner;
         _subject = subject;
         uint256 total = keyAmount * fragmentParam;
@@ -142,7 +142,9 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
     ) external payable override returns (uint256) {
         if (msg.sender != TOMO_Hub_ENTRYPOINT)
             revert Errors.NotTomoFragmentEntryPoint();
-        uint256 keyPrice = ITomo(TOMO_IMPL).getBuyPrice(_subject, 0);
+        uint256 currentSupply = ITomo(TOMO_IMPL).getSubjectSupply(_subject);
+        if (currentSupply == 0) revert Errors.SupplyCanNotBeZero();
+        uint256 keyPrice = ITomo(TOMO_IMPL).getPrice(currentSupply - 1, 1);
         //if msg.value less than one split key, revert.
         if (msg.value * _fragmentParam < keyPrice)
             revert Errors.ETHValueTooLow();
@@ -263,7 +265,9 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
     function getSellPriceAfterFee(
         uint256 amount
     ) private view returns (uint256, uint256) {
-        uint256 keyPrice = ITomo(TOMO_IMPL).getBuyPrice(_subject, 0);
+        uint256 currentSupply = ITomo(TOMO_IMPL).getSubjectSupply(_subject);
+        if (currentSupply == 0) revert Errors.SupplyCanNotBeZero();
+        uint256 keyPrice = ITomo(TOMO_IMPL).getPrice(currentSupply - 1, 1);
         uint256 price = (keyPrice * amount) / _fragmentParam;
         uint256 fee = (price *
             (_liquidityProviderFeePercent + _protocolFeePercent)) / BPS_MAX;
@@ -273,7 +277,9 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
     function getBuyPriceAfterFee(
         uint256 amount
     ) private view returns (uint256, uint256) {
-        uint256 keyPrice = ITomo(TOMO_IMPL).getBuyPrice(_subject, 0);
+        uint256 currentSupply = ITomo(TOMO_IMPL).getSubjectSupply(_subject);
+        if (currentSupply == 0) revert Errors.SupplyCanNotBeZero();
+        uint256 keyPrice = ITomo(TOMO_IMPL).getPrice(currentSupply - 1, 1);
         uint256 price = (keyPrice * amount) / _fragmentParam;
         uint256 fee = (price *
             (_liquidityProviderFeePercent + _protocolFeePercent)) / BPS_MAX;

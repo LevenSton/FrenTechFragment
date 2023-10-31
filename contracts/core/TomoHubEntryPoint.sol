@@ -19,6 +19,7 @@ contract TomoHubEntryPoint is
 {
     using EnumerableSet for EnumerableSet.UintSet;
 
+    uint256 internal constant ONE_WEEK = 7 days;
     uint256 internal constant REVISION = 1;
     address internal immutable TOMO_IMPL;
     address internal immutable TOMO_FRAGMENT_POOL_IMPL;
@@ -78,13 +79,16 @@ contract TomoHubEntryPoint is
         bytes32 subject,
         uint256 amount,
         uint256 fragmentAmount,
+        //uint256 deadline,
         uint256 maxAcceptPrice,
         uint8[] calldata v,
         bytes32[] calldata r,
         bytes32[] calldata s
     ) external payable override {
+        // if (block.timestamp + ONE_WEEK < deadline)
+        //     revert Errors.DeadLineNeedMoreThanOneWeek();
         //check if the key price enough for fragmention
-        uint256 currentPrice = ITomo(TOMO_IMPL).getBuyPrice(subject, 0);
+        uint256 currentPrice = ITomo(TOMO_IMPL).getBuyPrice(subject, 1);
         if (currentPrice < _minPriceKeyCanFragment)
             revert Errors.KeyPriceTooLowCanNotBeFragment();
 
@@ -333,16 +337,10 @@ contract TomoHubEntryPoint is
     function _sendToTomoFragmentPool(
         bytes32 subject,
         uint256 amount,
+        //uint256 deadline,
         uint256 fragmentAmount
     ) internal {
-        if (_subjectToFragmentPool[subject].poolCreator != address(0)) {
-            uint256 fragmentParam = ITomoFragmentPool(
-                _subjectToFragmentPool[subject].fragmentPoolAddress
-            ).getFragmentParam();
-            ITomoFragmentPool(
-                _subjectToFragmentPool[subject].fragmentPoolAddress
-            ).addKeyLiquidity(msg.sender, fragmentParam * amount);
-        } else {
+        if (_subjectToFragmentPool[subject].fragmentPoolAddress == address(0)) {
             // create new subject fragment pool
             address newFragmentPool = Clones.clone(TOMO_FRAGMENT_POOL_IMPL);
 
@@ -365,6 +363,12 @@ contract TomoHubEntryPoint is
             );
         }
         _subjectToFragmentPool[subject].holdAmount += amount;
+
+        uint256 fragmentParam = ITomoFragmentPool(
+            _subjectToFragmentPool[subject].fragmentPoolAddress
+        ).getFragmentParam();
+        ITomoFragmentPool(_subjectToFragmentPool[subject].fragmentPoolAddress)
+            .addKeyLiquidity(msg.sender, fragmentParam * amount);
         _emitAddKeyLiquidity(
             _subjectToFragmentPool[subject].fragmentPoolAddress,
             msg.sender,

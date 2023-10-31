@@ -471,10 +471,10 @@ error SendETHFailed()
 
 
 
-### SubjectNotExist
+### SupplyCanNotBeZero
 
 ```solidity
-error SubjectNotExist()
+error SupplyCanNotBeZero()
 ```
 
 

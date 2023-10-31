@@ -33,4 +33,6 @@ library Errors {
     error NotContrainThisLockIndex();
     error AlreadyContrainThisLockIndex();
     error JustLiquidityProviderCanQuit();
+    error DeadLineNeedMoreThanOneWeek();
+    error SupplyCanNotBeZero();
 }
