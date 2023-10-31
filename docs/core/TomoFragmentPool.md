@@ -432,6 +432,17 @@ error CanNotBuyExceedFragmentParam()
 
 
 
+### ETHLiquidityNotEnough
+
+```solidity
+error ETHLiquidityNotEnough()
+```
+
+
+
+
+
+
 ### ETHValueTooLow
 
 ```solidity

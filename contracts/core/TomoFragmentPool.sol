@@ -52,11 +52,13 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         if (_initialized) revert Errors.Initialized();
         _initialized = true;
         address subjectOwner = ITomo(TOMO_IMPL).getSubjectOwner(subject);
+        //when kol not jump in, the subject owner is empty, can not revert.
         //if (subjectOwner == address(0)) revert Errors.SubjectNotExist();
         _protocolFeeAddress = protocolFeeAddress;
         _subjectOwner = subjectOwner;
         _subject = subject;
         uint256 total = keyAmount * fragmentParam;
+        //all liquidity provider share all _currentLiquidity and eth in contract, so not record the fragment balance of liquidity provider
         //_fragBalance[keyLiquidityProvider] = total;
         _bLiquidityProvider[keyLiquidityProvider] = true;
         _totalSupply = total;
@@ -251,9 +253,11 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         if (priceAfterFee < minAcceptPrice && !bSellWholeKey) {
             revert Errors.LessThanMinAcceptPrice();
         }
-        if (bSellWholeKey) {
-            if (address(this).balance < priceAfterFee) {
+        if (address(this).balance < priceAfterFee) {
+            if (bSellWholeKey) {
                 return priceSellToTomo;
+            } else {
+                revert Errors.ETHLiquidityNotEnough();
             }
         }
 

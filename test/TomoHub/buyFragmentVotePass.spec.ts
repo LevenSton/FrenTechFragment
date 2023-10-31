@@ -20,7 +20,7 @@ import {buildBuySeparator} from '../helpers/utils'
 import { ERRORS } from '../helpers/errors';
 import { ethers } from 'hardhat';
 
-makeSuiteCleanRoom('Trade Fragment Vote Pass', function () {
+makeSuiteCleanRoom('Buy Fragment Vote Pass', function () {
     context('Generic', function () {
         beforeEach(async function () {
             const sig = await buildBuySeparator(mockTomo.address, TOMO_NAME, subject1, tomoHubEntryPointProxy.address, buyAmountForFragment);
@@ -57,8 +57,8 @@ makeSuiteCleanRoom('Trade Fragment Vote Pass', function () {
                 const poolAddress = (await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).fragmentPoolAddress;
                 const fragmentPool = TomoFragmentPool__factory.connect(poolAddress, userTwo);
                 await expect(fragmentPool.connect(userTwo).buyFragmentVotePass(
-                    1,
-                    subject1,
+                    10,
+                    100000,
                     userTwoAddress
                 )).to.be.revertedWithCustomError(fragmentPool, ERRORS.NOT_TOMO_FRAGMENT_ENTRYPOINT);
             });
