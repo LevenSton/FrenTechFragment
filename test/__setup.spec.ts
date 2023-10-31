@@ -100,7 +100,7 @@ before(async function () {
   tomoFragmentPool = await new TomoFragmentPool__factory(deployer).deploy(tomoHubEntryPointProxyAddress, mockTomo.address);
 
   let data = tomoHubEntryPointImpl.interface.encodeFunctionData('initialize', [
-    governanceAddress,
+    governanceAddress, deployerAddress
   ]);
   let proxy = await new TransparentUpgradeableProxy__factory(deployer).deploy(
     tomoHubEntryPointImpl.address,

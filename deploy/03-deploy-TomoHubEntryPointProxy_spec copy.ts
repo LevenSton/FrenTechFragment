@@ -13,7 +13,7 @@ const deployFn: DeployFunction = async (hre) => {
   const { deployer,  governance} = await hre.getNamedAccounts()
 
   let data = TomoHubEntryPointImpl.interface.encodeFunctionData('initialize', [
-    governance
+    governance, deployer
   ]);
 
   await deployAndVerifyAndThen({

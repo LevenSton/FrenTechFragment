@@ -108,6 +108,23 @@ function _minPriceKeyCanFragment() external view returns (uint256)
 |---|---|---|
 | _0 | uint256 | undefined |
 
+### _protocolFeeAddress
+
+```solidity
+function _protocolFeeAddress() external view returns (address)
+```
+
+
+
+
+
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | address | undefined |
+
 ### _state
 
 ```solidity

@@ -35,6 +35,7 @@ abstract contract TomoHubStorage {
     // the min price of one key which can be fragmention
     uint256 public _minPriceKeyCanFragment;
 
+    address public _protocolFeeAddress;
     //governance address
     address public _governance;
 }

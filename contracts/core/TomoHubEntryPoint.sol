@@ -29,6 +29,11 @@ contract TomoHubEntryPoint is
         _;
     }
 
+    modifier whenNotPaused() {
+        _validateNotPaused();
+        _;
+    }
+
     /**
      * @dev The constructor sets the immutable Tomo implementations.
      *
@@ -44,10 +49,12 @@ contract TomoHubEntryPoint is
 
     /// @inheritdoc ITomoHubEntryPoint
     function initialize(
-        address newGovernanceContractAddress
+        address governanceContractAddress,
+        address protocolFeeAddress
     ) external override initializer {
         _setState(DataTypes.TomoHubEntryPointState.Paused);
-        _setGovernance(newGovernanceContractAddress);
+        _setGovernance(governanceContractAddress);
+        _setProtocolFeeAddress(protocolFeeAddress);
     }
 
     /// ***********************
@@ -56,6 +63,12 @@ contract TomoHubEntryPoint is
 
     function setGovernance(address newGovernance) external override onlyGov {
         _setGovernance(newGovernance);
+    }
+
+    function setProtocolFeeAddress(
+        address newProtocolFeeAddress
+    ) external override onlyGov {
+        _setProtocolFeeAddress(newProtocolFeeAddress);
     }
 
     function setState(
@@ -84,7 +97,7 @@ contract TomoHubEntryPoint is
         uint8[] calldata v,
         bytes32[] calldata r,
         bytes32[] calldata s
-    ) external payable override {
+    ) external payable override whenNotPaused {
         // if (block.timestamp + ONE_WEEK < deadline)
         //     revert Errors.DeadLineNeedMoreThanOneWeek();
         //check if the key price enough for fragmention
@@ -118,7 +131,7 @@ contract TomoHubEntryPoint is
         bytes32 subject,
         uint256 amount,
         uint256 maxAcceptPrice
-    ) external payable override {
+    ) external payable override whenNotPaused {
         //check if subject fragment pool exist
         address poolAddress = _subjectToFragmentPool[subject]
             .fragmentPoolAddress;
@@ -136,7 +149,7 @@ contract TomoHubEntryPoint is
         bytes32 subject,
         uint256 amount,
         uint256 minAcceptPrice
-    ) external override {
+    ) external override whenNotPaused {
         //check if subject fragment pool exist
         address poolAddress = _subjectToFragmentPool[subject]
             .fragmentPoolAddress;
@@ -163,7 +176,7 @@ contract TomoHubEntryPoint is
         bytes32 subject,
         address seller,
         uint256 amount
-    ) external override {
+    ) external override whenNotPaused {
         if (_fragmentPoolToSubject[msg.sender] != subject)
             revert Errors.CallerNeedBeFragmentPool();
         if (_subjectToFragmentPool[subject].holdAmount < amount)
@@ -180,7 +193,9 @@ contract TomoHubEntryPoint is
     }
 
     /// @inheritdoc ITomoHubEntryPoint
-    function addETHLiquidity(bytes32 subject) external payable override {
+    function addETHLiquidity(
+        bytes32 subject
+    ) external payable override whenNotPaused {
         address poolAddress = _subjectToFragmentPool[subject]
             .fragmentPoolAddress;
         if (poolAddress == address(0)) revert Errors.FragmentPoolNotExist();
@@ -196,7 +211,9 @@ contract TomoHubEntryPoint is
     }
 
     /// @inheritdoc ITomoHubEntryPoint
-    function quitFromLiquidityProvider(bytes32 subject) external override {
+    function quitFromLiquidityProvider(
+        bytes32 subject
+    ) external override whenNotPaused {
         address poolAddress = _subjectToFragmentPool[subject]
             .fragmentPoolAddress;
         if (poolAddress == address(0)) revert Errors.FragmentPoolNotExist();
@@ -218,7 +235,7 @@ contract TomoHubEntryPoint is
         uint8[] calldata v,
         bytes32[] calldata r,
         bytes32[] calldata s
-    ) external payable override {
+    ) external payable override whenNotPaused {
         uint256 priceAfterFee = ITomo(TOMO_IMPL).getBuyPriceAfterFee(
             subject,
             amount
@@ -244,7 +261,7 @@ contract TomoHubEntryPoint is
         uint256 amount,
         uint256 minAcceptPrice,
         address payable receiveFund
-    ) external override {
+    ) external override whenNotPaused {
         if (_indexToVotePassLockInfo[lockIndex].owner != msg.sender)
             revert Errors.NotLockOwner();
         if (_indexToVotePassLockInfo[lockIndex].lockUntil < block.timestamp)
@@ -282,7 +299,7 @@ contract TomoHubEntryPoint is
     function transferLockVotePass(
         uint256 lockIndex,
         address to
-    ) external override {
+    ) external override whenNotPaused {
         if (_indexToVotePassLockInfo[lockIndex].owner != msg.sender)
             revert Errors.NotLockOwner();
         if (_indexToVotePassLockInfo[lockIndex].amount == 0)
@@ -346,9 +363,10 @@ contract TomoHubEntryPoint is
 
             ITomoFragmentPool(newFragmentPool).initialize(
                 subject,
-                msg.sender,
                 fragmentAmount,
-                amount
+                amount,
+                msg.sender,
+                _protocolFeeAddress
             );
             _subjectToFragmentPool[subject].subject = subject;
             _subjectToFragmentPool[subject].poolCreator = msg.sender;
@@ -448,6 +466,17 @@ contract TomoHubEntryPoint is
         );
     }
 
+    function _setProtocolFeeAddress(address newProtocolFeeAddress) internal {
+        address preProtocolFeeAddress = _protocolFeeAddress;
+        _protocolFeeAddress = newProtocolFeeAddress;
+        emit Events.ProcotolFeeAddressSet(
+            msg.sender,
+            preProtocolFeeAddress,
+            newProtocolFeeAddress,
+            block.timestamp
+        );
+    }
+
     function _validateCallerIsGovernance() internal view {
         if (msg.sender != _governance) revert Errors.NotGovernance();
     }
@@ -471,5 +500,10 @@ contract TomoHubEntryPoint is
 
     function getRevision() internal pure virtual override returns (uint256) {
         return REVISION;
+    }
+
+    function _validateNotPaused() internal view {
+        if (_state == DataTypes.TomoHubEntryPointState.Paused)
+            revert Errors.Paused();
     }
 }

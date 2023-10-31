@@ -14,9 +14,13 @@ import {DataTypes} from "../libraries/DataTypes.sol";
 interface ITomoHubEntryPoint {
     /**
      * @notice initialize smart contract.
-     * @param newGovernanceContractAddress The governance address to set.
+     * @param governanceContractAddress The governance address to set.
+     * @param protocolFeeAddress The protocol fee address to set.
      */
-    function initialize(address newGovernanceContractAddress) external;
+    function initialize(
+        address governanceContractAddress,
+        address protocolFeeAddress
+    ) external;
 
     /// ***************************************
     /// *****About Fragment Pool Liquidity*****
@@ -170,6 +174,13 @@ interface ITomoHubEntryPoint {
      * @param newGovernance new address
      */
     function setGovernance(address newGovernance) external;
+
+    /**
+     * @notice set new protocol fee address
+     *
+     * @param newProtocolFeeAddress new fee address
+     */
+    function setProtocolFeeAddress(address newProtocolFeeAddress) external;
 
     /**
      * @notice set new state of TomoHubEntryPoint

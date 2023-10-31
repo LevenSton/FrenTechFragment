@@ -135,7 +135,7 @@ get Lock Info by index
 ### initialize
 
 ```solidity
-function initialize(address newGovernanceContractAddress) external nonpayable
+function initialize(address governanceContractAddress, address protocolFeeAddress) external nonpayable
 ```
 
 initialize smart contract.
@@ -146,7 +146,8 @@ initialize smart contract.
 
 | Name | Type | Description |
 |---|---|---|
-| newGovernanceContractAddress | address | The governance address to set. |
+| governanceContractAddress | address | The governance address to set. |
+| protocolFeeAddress | address | The protocol fee address to set. |
 
 ### quitFromLiquidityProvider
 
@@ -250,6 +251,22 @@ set min price of one key/vote can fragment
 | Name | Type | Description |
 |---|---|---|
 | minPrice | uint256 | new min price |
+
+### setProtocolFeeAddress
+
+```solidity
+function setProtocolFeeAddress(address newProtocolFeeAddress) external nonpayable
+```
+
+set new protocol fee address
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| newProtocolFeeAddress | address | new fee address |
 
 ### setState
 

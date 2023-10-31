@@ -359,7 +359,7 @@ query how mant fragment votepass and eth can get if quit the liquidity
 ### initialize
 
 ```solidity
-function initialize(bytes32 subject, address keyLiquidityProvider, uint256 fragmentParam, uint256 keyAmount) external nonpayable
+function initialize(bytes32 subject, uint256 fragmentParam, uint256 keyAmount, address keyLiquidityProvider, address protocolFeeAddress) external nonpayable
 ```
 
 Buy And Fragment Key/Vote.
@@ -371,9 +371,10 @@ Buy And Fragment Key/Vote.
 | Name | Type | Description |
 |---|---|---|
 | subject | bytes32 | Identity of one tomo. |
-| keyLiquidityProvider | address | undefined |
 | fragmentParam | uint256 | The param which one key can split to |
 | keyAmount | uint256 | The amount key need to fragment |
+| keyLiquidityProvider | address | undefined |
+| protocolFeeAddress | address | The protocol fee Address. |
 
 ### quitFromLiquidityProvider
 

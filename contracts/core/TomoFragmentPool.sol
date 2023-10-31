@@ -44,14 +44,16 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
     /// @inheritdoc ITomoFragmentPool
     function initialize(
         bytes32 subject,
-        address keyLiquidityProvider,
         uint256 fragmentParam,
-        uint256 keyAmount
+        uint256 keyAmount,
+        address keyLiquidityProvider,
+        address protocolFeeAddress
     ) external override {
         if (_initialized) revert Errors.Initialized();
         _initialized = true;
         address subjectOwner = ITomo(TOMO_IMPL).getSubjectOwner(subject);
         //if (subjectOwner == address(0)) revert Errors.SubjectNotExist();
+        _protocolFeeAddress = protocolFeeAddress;
         _subjectOwner = subjectOwner;
         _subject = subject;
         uint256 total = keyAmount * fragmentParam;

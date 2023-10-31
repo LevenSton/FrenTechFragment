@@ -21,6 +21,13 @@ library Events {
         uint256 timestamp
     );
 
+    event ProcotolFeeAddressSet(
+        address indexed caller,
+        address indexed prevProcotolFeeAddress,
+        address indexed newProcotolFeeAddress,
+        uint256 timestamp
+    );
+
     event StateSet(
         address indexed caller,
         DataTypes.TomoHubEntryPointState indexed prevState,

@@ -9,9 +9,10 @@ import {
     mockTomo,
     subject,
     subject1,
-    TOMO_NAME
+    TOMO_NAME,
+    governance
 } from '../__setup.spec';
-import {buildBuySeparator} from '../helpers/utils'
+import {buildBuySeparator, TomoHubEntryPointState} from '../helpers/utils'
 import { ERRORS } from '../helpers/errors';
 
 makeSuiteCleanRoom('Create Tomo VotePass Pool', function () {
@@ -90,6 +91,21 @@ makeSuiteCleanRoom('Create Tomo VotePass Pool', function () {
                     [sig.s],
                     {value: price1}
                 )).to.be.revertedWith("Invalid signer")
+            });
+            it('Should failed if pause the contract',   async function () {
+                await expect(tomoHubEntryPointProxy.connect(governance).setState(TomoHubEntryPointState.Paused)).to.not.be.reverted;
+                const sig = await buildBuySeparator(mockTomo.address, TOMO_NAME, subject1, tomoHubEntryPointProxy.address, 1);
+                const price1 = await mockTomo.connect(user).getBuyPriceAfterFee(subject1, 1);
+                await expect(tomoHubEntryPointProxy.connect(user).buyVotePassAndFragment(
+                    subject1,
+                    1,
+                    1000,
+                    price1,
+                    [sig.v],
+                    [sig.r],
+                    [sig.s],
+                    {value: price1}
+                )).to.be.revertedWithCustomError(tomoHubEntryPointProxy, ERRORS.PAUSED);
             });
         })
 

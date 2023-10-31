@@ -108,6 +108,23 @@ function _minPriceKeyCanFragment() external view returns (uint256)
 |---|---|---|
 | _0 | uint256 | undefined |
 
+### _protocolFeeAddress
+
+```solidity
+function _protocolFeeAddress() external view returns (address)
+```
+
+
+
+
+
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | address | undefined |
+
 ### _state
 
 ```solidity
@@ -275,7 +292,7 @@ get Lock Info by index
 ### initialize
 
 ```solidity
-function initialize(address newGovernanceContractAddress) external nonpayable
+function initialize(address governanceContractAddress, address protocolFeeAddress) external nonpayable
 ```
 
 initialize smart contract.
@@ -286,7 +303,8 @@ initialize smart contract.
 
 | Name | Type | Description |
 |---|---|---|
-| newGovernanceContractAddress | address | The governance address to set. |
+| governanceContractAddress | address | The governance address to set. |
+| protocolFeeAddress | address | The protocol fee address to set. |
 
 ### quitFromLiquidityProvider
 
@@ -390,6 +408,22 @@ set min price of one key/vote can fragment
 | Name | Type | Description |
 |---|---|---|
 | minPrice | uint256 | new min price |
+
+### setProtocolFeeAddress
+
+```solidity
+function setProtocolFeeAddress(address newProtocolFeeAddress) external nonpayable
+```
+
+set new protocol fee address
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| newProtocolFeeAddress | address | new fee address |
 
 ### setState
 
@@ -503,6 +537,25 @@ event NewFragmentPoolCreate(bytes32 subject, address creator, address poolAddres
 | creator  | address | undefined |
 | poolAddress  | address | undefined |
 | fragmentAmount  | uint256 | undefined |
+
+### ProcotolFeeAddressSet
+
+```solidity
+event ProcotolFeeAddressSet(address indexed caller, address indexed prevProcotolFeeAddress, address indexed newProcotolFeeAddress, uint256 timestamp)
+```
+
+
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| caller `indexed` | address | undefined |
+| prevProcotolFeeAddress `indexed` | address | undefined |
+| newProcotolFeeAddress `indexed` | address | undefined |
+| timestamp  | uint256 | undefined |
 
 ### SellLockVotePass
 
@@ -743,6 +796,17 @@ error NotGovernance()
 
 ```solidity
 error NotLockOwner()
+```
+
+
+
+
+
+
+### Paused
+
+```solidity
+error Paused()
 ```
 
 
