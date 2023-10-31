@@ -1,5 +1,4 @@
 import '@nomiclabs/hardhat-ethers';
-import { utils } from 'ethers';
 import { expect } from 'chai';
 import {
     makeSuiteCleanRoom,
@@ -19,6 +18,7 @@ import {
   } from '../../typechain-types';
 import {buildBuySeparator} from '../helpers/utils'
 import { ERRORS } from '../helpers/errors';
+import { ethers } from 'hardhat';
 
 makeSuiteCleanRoom('Trade Fragment Vote Pass', function () {
     context('Generic', function () {
@@ -100,6 +100,18 @@ makeSuiteCleanRoom('Trade Fragment Vote Pass', function () {
                 await expect(tomoHubEntryPointProxy.connect(userTwo).buyFragmentVotePass(
                     subject1,
                     100,
+                    price[1],
+                    {value: price[1].sub(100)}
+                )).to.be.revertedWithCustomError(fragmentPool, ERRORS.FUNDS_NOT_ENOUGH);
+            });
+
+            it('User should fail to buy fragment vote pass if the price large than max accept price.',   async function () {
+                const poolAddress = (await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).fragmentPoolAddress;
+                const fragmentPool = TomoFragmentPool__factory.connect(poolAddress, userTwo);
+                const price = await fragmentPool.getBuyPriceAfterFee(100);
+                await expect(tomoHubEntryPointProxy.connect(userTwo).buyFragmentVotePass(
+                    subject1,
+                    100,
                     price[1].sub(100),
                     {value: price[1].add(100)}
                 )).to.be.revertedWithCustomError(fragmentPool, ERRORS.LARGE_THAN_MAX_ACCEPTPRICE);
@@ -107,24 +119,23 @@ makeSuiteCleanRoom('Trade Fragment Vote Pass', function () {
         })
 
         context('Scenarios', function () {
-            // it('Should return the expected pool adddress when create fragment pool success',   async function () {
-            //     const sig = await buildBuySeparator(mockTomo.address, TOMO_NAME, subject1, tomoHubEntryPointProxy.address, 1);
-            //     const price1 = await mockTomo.connect(user).getBuyPriceAfterFee(subject1, 1);
-            //     //const ethValue = price1.sub(10000000);
-            //     await expect(tomoHubEntryPointProxy.connect(user).buyVotePassAndFragment(
-            //         subject1,
-            //         1,
-            //         1000,
-            //         price1,
-            //         [sig.v],
-            //         [sig.r],
-            //         [sig.s],
-            //         {value: price1}
-            //     )).to.not.reverted
-            //     expect((await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).poolCreator).to.eq(userAddress);
-            //     expect((await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).holdAmount).to.eq(1);
-            //     expect((await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).subject).to.eq(subject1);
-            // });
+            it('Get correct variable if buy fragment vote pass success.',   async function () {
+                const poolAddress = (await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).fragmentPoolAddress;
+                expect(await ethers.provider.getBalance(poolAddress)).to.equal(0);
+
+                const fragmentPool = TomoFragmentPool__factory.connect(poolAddress, userTwo);
+                const price = await fragmentPool.getBuyPriceAfterFee(100);
+                await expect(tomoHubEntryPointProxy.connect(userTwo).buyFragmentVotePass(
+                    subject1,
+                    100,
+                    price[1],
+                    {value: price[1]}
+                )).to.not.reverted
+                expect(await fragmentPool._fragBalance(userTwoAddress)).to.equal(100);
+                expect(await fragmentPool._currentLiquidity()).to.eq(buyAmountForFragment * 1000 - 100);
+                const contractBalance = await ethers.provider.getBalance(poolAddress)
+                expect(contractBalance).to.equal(price[1].sub(price[0].mul(200).div(10000)))
+            });
         })
     })
 })
