@@ -15,15 +15,14 @@ import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet
  */
 abstract contract TomoHubStorage {
     //map for subject to pool
-    mapping(bytes32 => DataTypes.FragmentConfig)
-        internal _subjectToFragmentPool;
+    mapping(bytes32 => DataTypes.FragmentConfig) public _subjectToFragmentPool;
 
     //map for pool to subject
-    mapping(address => bytes32) internal _fragmentPoolToSubject;
+    mapping(address => bytes32) public _fragmentPoolToSubject;
 
     //map for lockindex to LockInfo
     mapping(uint256 => DataTypes.VotePassLockInfo)
-        internal _indexToVotePassLockInfo;
+        public _indexToVotePassLockInfo;
 
     //map for user address to lockindex set
     mapping(address => EnumerableSet.UintSet) internal _userVotePassLockIds;

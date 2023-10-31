@@ -4,18 +4,11 @@ import { expect } from 'chai';
 import {
     makeSuiteCleanRoom,
     user,
-    deployer,
     userAddress,
-    userTwo,
-    governance,
     tomoHubEntryPointProxy,
-    abiCoder,
     mockTomo,
     subject,
     subject1,
-    buyAmount,
-    buyAmount1,
-    deployerAddress,
     TOMO_NAME
 } from '../__setup.spec';
 import {buildBuySeparator} from '../helpers/utils'
@@ -23,27 +16,6 @@ import { ERRORS } from '../helpers/errors';
 
 makeSuiteCleanRoom('Create Tomo VotePass Pool', function () {
     context('Generic', function () {
-
-        beforeEach(async function () {
-
-            const sig = await buildBuySeparator(mockTomo.address, TOMO_NAME, subject, userAddress, buyAmount);
-            const sig1 = await buildBuySeparator(mockTomo.address, TOMO_NAME, subject1, userAddress, buyAmount1);
-            const price = await mockTomo.connect(user).getBuyPriceAfterFee(subject, buyAmount);
-            const price1 = await mockTomo.connect(user).getBuyPriceAfterFee(subject1, buyAmount1);
-            await expect(
-                mockTomo.connect(user).buyVotePass(subject, buyAmount, [sig.v], [sig.r], [sig.s])
-            ).to.be.reverted;
-            await expect(
-                mockTomo.connect(user).buyVotePass(subject1, buyAmount1, [sig1.v], [sig1.r], [sig1.s])
-            ).to.be.reverted;
-
-            await expect(
-                mockTomo.connect(user).buyVotePass(subject, buyAmount, [sig.v], [sig.r], [sig.s], {value: price})
-            ).to.not.be.reverted;
-            await expect(
-                mockTomo.connect(user).buyVotePass(subject1, buyAmount1, [sig1.v], [sig1.r], [sig1.s], {value: price1})
-            ).to.not.be.reverted;
-        });
 
         context('Negatives', function () {
             it('User should fail to create a fragment pool when key price less than the minPriceKeyCanFragment',   async function () {
@@ -136,6 +108,9 @@ makeSuiteCleanRoom('Create Tomo VotePass Pool', function () {
                     [sig.s],
                     {value: price1}
                 )).to.not.reverted
+                expect((await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).poolCreator).to.eq(userAddress);
+                expect((await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).holdAmount).to.eq(1);
+                expect((await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).subject).to.eq(subject1);
             });
         })
     })

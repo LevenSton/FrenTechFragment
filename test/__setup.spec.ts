@@ -24,6 +24,8 @@ import { SIGN_PRIVATEKEY } from './helpers/constants';
 import hre from 'hardhat'
 import {utils} from 'ethers';
 import { ERRORS } from './helpers/errors';
+import {buildBuySeparator} from './helpers/utils'
+
 export let accounts: Signer[];
 export let deployer: Signer;
 export let governance: Signer;
@@ -46,6 +48,7 @@ export let signWallet: Wallet;
 export let subject = utils.keccak256(utils.toUtf8Bytes("LevenWilson"));
 export let buyAmount = 200;
 export let buyAmount1 = 220;
+export let buyAmountForFragment = 2;
 export let subject1 = utils.keccak256(utils.toUtf8Bytes("Tomo_Social"));
 export const TOMO_NAME = 'Tomo';
 
@@ -122,4 +125,22 @@ before(async function () {
 
   // Event library deployment is only needed for testing and is not reproduced in the live environment
   eventsLib = await new Events__factory(deployer).deploy();
+
+  const sig = await buildBuySeparator(mockTomo.address, TOMO_NAME, subject, userAddress, buyAmount);
+  const sig1 = await buildBuySeparator(mockTomo.address, TOMO_NAME, subject1, userAddress, buyAmount1);
+  const price = await mockTomo.connect(user).getBuyPriceAfterFee(subject, buyAmount);
+  const price1 = await mockTomo.connect(user).getBuyPriceAfterFee(subject1, buyAmount1);
+  await expect(
+      mockTomo.connect(user).buyVotePass(subject, buyAmount, [sig.v], [sig.r], [sig.s])
+  ).to.be.reverted;
+  await expect(
+      mockTomo.connect(user).buyVotePass(subject1, buyAmount1, [sig1.v], [sig1.r], [sig1.s])
+  ).to.be.reverted;
+
+  await expect(
+      mockTomo.connect(user).buyVotePass(subject, buyAmount, [sig.v], [sig.r], [sig.s], {value: price})
+  ).to.not.be.reverted;
+  await expect(
+      mockTomo.connect(user).buyVotePass(subject1, buyAmount1, [sig1.v], [sig1.r], [sig1.s], {value: price1})
+  ).to.not.be.reverted;
 });

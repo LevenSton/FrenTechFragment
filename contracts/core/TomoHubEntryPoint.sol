@@ -361,14 +361,12 @@ contract TomoHubEntryPoint is
                 newFragmentPool,
                 fragmentAmount
             );
+        } else {
+            ITomoFragmentPool(
+                _subjectToFragmentPool[subject].fragmentPoolAddress
+            ).addKeyLiquidity(msg.sender, amount);
         }
         _subjectToFragmentPool[subject].holdAmount += amount;
-
-        uint256 fragmentParam = ITomoFragmentPool(
-            _subjectToFragmentPool[subject].fragmentPoolAddress
-        ).getFragmentParam();
-        ITomoFragmentPool(_subjectToFragmentPool[subject].fragmentPoolAddress)
-            .addKeyLiquidity(msg.sender, fragmentParam * amount);
         _emitAddKeyLiquidity(
             _subjectToFragmentPool[subject].fragmentPoolAddress,
             msg.sender,

@@ -10,6 +10,28 @@
 
 ## Methods
 
+### _fragmentPoolToSubject
+
+```solidity
+function _fragmentPoolToSubject(address) external view returns (bytes32)
+```
+
+
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | address | undefined |
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | bytes32 | undefined |
+
 ### _globalLockIndex
 
 ```solidity
@@ -44,6 +66,31 @@ function _governance() external view returns (address)
 |---|---|---|
 | _0 | address | undefined |
 
+### _indexToVotePassLockInfo
+
+```solidity
+function _indexToVotePassLockInfo(uint256) external view returns (bytes32 subject, uint256 amount, uint256 lockUntil, address owner)
+```
+
+
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | uint256 | undefined |
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| subject | bytes32 | undefined |
+| amount | uint256 | undefined |
+| lockUntil | uint256 | undefined |
+| owner | address | undefined |
+
 ### _minPriceKeyCanFragment
 
 ```solidity
@@ -77,6 +124,31 @@ function _state() external view returns (enum DataTypes.TomoHubEntryPointState)
 | Name | Type | Description |
 |---|---|---|
 | _0 | enum DataTypes.TomoHubEntryPointState | undefined |
+
+### _subjectToFragmentPool
+
+```solidity
+function _subjectToFragmentPool(bytes32) external view returns (bytes32 subject, uint256 holdAmount, address poolCreator, address fragmentPoolAddress)
+```
+
+
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | bytes32 | undefined |
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| subject | bytes32 | undefined |
+| holdAmount | uint256 | undefined |
+| poolCreator | address | undefined |
+| fragmentPoolAddress | address | undefined |
 
 ### addETHLiquidity
 

@@ -10,6 +10,23 @@ This is the interface for the TomoFragmentPool contract, the pool of key Fragmen
 
 ## Methods
 
+### _fragmentParam
+
+```solidity
+function _fragmentParam() external view returns (uint256)
+```
+
+get fragment param.
+
+
+
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | uint256 | undefined |
+
 ### addETHLiquidity
 
 ```solidity
@@ -73,22 +90,51 @@ Sell the Fragment Key/Vote.
 |---|---|---|
 | _0 | uint256 | undefined |
 
-### getFragmentParam
+### getBuyPriceAfterFee
 
 ```solidity
-function getFragmentParam() external view returns (uint256)
+function getBuyPriceAfterFee(uint256 amount) external view returns (uint256, uint256)
 ```
 
-get fragment param.
 
 
 
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| amount | uint256 | undefined |
 
 #### Returns
 
 | Name | Type | Description |
 |---|---|---|
 | _0 | uint256 | undefined |
+| _1 | uint256 | undefined |
+
+### getSellPriceAfterFee
+
+```solidity
+function getSellPriceAfterFee(uint256 amount) external view returns (uint256, uint256)
+```
+
+
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| amount | uint256 | undefined |
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | uint256 | undefined |
+| _1 | uint256 | undefined |
 
 ### getVotePassAndEthIfQuit
 

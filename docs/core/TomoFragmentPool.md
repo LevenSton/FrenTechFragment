@@ -83,6 +83,23 @@ function _bLiquidityProvider(address) external view returns (bool)
 |---|---|---|
 | _0 | bool | undefined |
 
+### _currentLiquidity
+
+```solidity
+function _currentLiquidity() external view returns (uint256)
+```
+
+
+
+
+
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | uint256 | undefined |
+
 ### _fragBalance
 
 ```solidity
@@ -98,6 +115,23 @@ function _fragBalance(address) external view returns (uint256)
 | Name | Type | Description |
 |---|---|---|
 | _0 | address | undefined |
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | uint256 | undefined |
+
+### _fragmentParam
+
+```solidity
+function _fragmentParam() external view returns (uint256)
+```
+
+get fragment param.
+
+
+
 
 #### Returns
 
@@ -126,6 +160,57 @@ function _liquidityProviderFeePercent() external view returns (uint256)
 
 ```solidity
 function _protocolFeePercent() external view returns (uint256)
+```
+
+
+
+
+
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | uint256 | undefined |
+
+### _subject
+
+```solidity
+function _subject() external view returns (bytes32)
+```
+
+
+
+
+
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | bytes32 | undefined |
+
+### _subjectOwner
+
+```solidity
+function _subjectOwner() external view returns (address)
+```
+
+
+
+
+
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | address | undefined |
+
+### _totalSupply
+
+```solidity
+function _totalSupply() external view returns (uint256)
 ```
 
 
@@ -202,22 +287,51 @@ Sell the Fragment Key/Vote.
 |---|---|---|
 | _0 | uint256 | undefined |
 
-### getFragmentParam
+### getBuyPriceAfterFee
 
 ```solidity
-function getFragmentParam() external view returns (uint256)
+function getBuyPriceAfterFee(uint256 amount) external view returns (uint256, uint256)
 ```
 
-get fragment param.
 
 
 
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| amount | uint256 | undefined |
 
 #### Returns
 
 | Name | Type | Description |
 |---|---|---|
 | _0 | uint256 | undefined |
+| _1 | uint256 | undefined |
+
+### getSellPriceAfterFee
+
+```solidity
+function getSellPriceAfterFee(uint256 amount) external view returns (uint256, uint256)
+```
+
+
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| amount | uint256 | undefined |
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | uint256 | undefined |
+| _1 | uint256 | undefined |
 
 ### getVotePassAndEthIfQuit
 

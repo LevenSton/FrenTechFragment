@@ -18,12 +18,12 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
     address internal _protocolFeeAddress;
 
     bool private _initialized;
-    address _subjectOwner;
-    bytes32 _subject;
+    address public _subjectOwner;
+    bytes32 public _subject;
 
-    uint256 _totalSupply;
-    uint256 _currentLiquidity;
-    uint256 _fragmentParam; //how mant fragment one key can split
+    uint256 public _totalSupply;
+    uint256 public _currentLiquidity;
+    uint256 public _fragmentParam; //how mant fragment one key can split
     mapping(address => uint256) public _fragBalance;
     mapping(address => bool) public _bLiquidityProvider;
 
@@ -187,6 +187,14 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         _deleteQuitorLiquidityInfo(quitor);
     }
 
+    receive() external payable virtual {
+        revert Errors.NotReceiveETHDirectly();
+    }
+
+    /// ****************************
+    /// *****VIEW FUNCTIONS*****
+    /// ****************************
+
     /// @inheritdoc ITomoFragmentPool
     function getVotePassAndEthIfQuit(
         address quitor
@@ -198,12 +206,28 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         return (fragmentVotePass, ethValue);
     }
 
-    function getFragmentParam() external view override returns (uint256) {
-        return _fragmentParam;
+    function getSellPriceAfterFee(
+        uint256 amount
+    ) public view returns (uint256, uint256) {
+        uint256 currentSupply = ITomo(TOMO_IMPL).getSubjectSupply(_subject);
+        if (currentSupply == 0) revert Errors.SupplyCanNotBeZero();
+        uint256 keyPrice = ITomo(TOMO_IMPL).getPrice(currentSupply - 1, 1);
+        uint256 price = (keyPrice * amount) / _fragmentParam;
+        uint256 fee = (price *
+            (_liquidityProviderFeePercent + _protocolFeePercent)) / BPS_MAX;
+        return (price, price - fee);
     }
 
-    receive() external payable virtual {
-        revert Errors.NotReceiveETHDirectly();
+    function getBuyPriceAfterFee(
+        uint256 amount
+    ) public view returns (uint256, uint256) {
+        uint256 currentSupply = ITomo(TOMO_IMPL).getSubjectSupply(_subject);
+        if (currentSupply == 0) revert Errors.SupplyCanNotBeZero();
+        uint256 keyPrice = ITomo(TOMO_IMPL).getPrice(currentSupply - 1, 1);
+        uint256 price = (keyPrice * amount) / _fragmentParam;
+        uint256 fee = (price *
+            (_liquidityProviderFeePercent + _protocolFeePercent)) / BPS_MAX;
+        return (price, price + fee);
     }
 
     /// ****************************
@@ -260,29 +284,5 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         _currentLiquidity -= sellAmount;
         _fragBalance[seller] -= sellAmount;
         return (sellPrice, amount - sellAmount);
-    }
-
-    function getSellPriceAfterFee(
-        uint256 amount
-    ) private view returns (uint256, uint256) {
-        uint256 currentSupply = ITomo(TOMO_IMPL).getSubjectSupply(_subject);
-        if (currentSupply == 0) revert Errors.SupplyCanNotBeZero();
-        uint256 keyPrice = ITomo(TOMO_IMPL).getPrice(currentSupply - 1, 1);
-        uint256 price = (keyPrice * amount) / _fragmentParam;
-        uint256 fee = (price *
-            (_liquidityProviderFeePercent + _protocolFeePercent)) / BPS_MAX;
-        return (price, price - fee);
-    }
-
-    function getBuyPriceAfterFee(
-        uint256 amount
-    ) private view returns (uint256, uint256) {
-        uint256 currentSupply = ITomo(TOMO_IMPL).getSubjectSupply(_subject);
-        if (currentSupply == 0) revert Errors.SupplyCanNotBeZero();
-        uint256 keyPrice = ITomo(TOMO_IMPL).getPrice(currentSupply - 1, 1);
-        uint256 price = (keyPrice * amount) / _fragmentParam;
-        uint256 fee = (price *
-            (_liquidityProviderFeePercent + _protocolFeePercent)) / BPS_MAX;
-        return (price, price + fee);
     }
 }

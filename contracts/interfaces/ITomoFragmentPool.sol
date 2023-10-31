@@ -75,7 +75,7 @@ interface ITomoFragmentPool {
     /**
      * @notice get fragment param.
      */
-    function getFragmentParam() external view returns (uint256);
+    function _fragmentParam() external view returns (uint256);
 
     /**
      * @notice quit from liquidity provider, get back all votepass and eth reward.
@@ -92,5 +92,13 @@ interface ITomoFragmentPool {
      */
     function getVotePassAndEthIfQuit(
         address quitor
+    ) external view returns (uint256, uint256);
+
+    function getSellPriceAfterFee(
+        uint256 amount
+    ) external view returns (uint256, uint256);
+
+    function getBuyPriceAfterFee(
+        uint256 amount
     ) external view returns (uint256, uint256);
 }
