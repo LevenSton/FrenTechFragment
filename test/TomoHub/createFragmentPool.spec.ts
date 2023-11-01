@@ -95,7 +95,7 @@ makeSuiteCleanRoom('Create Tomo VotePass Pool', function () {
         })
 
         context('Scenarios', function () {
-            it('Should return the expected pool adddress when create fragment pool success',   async function () {
+            it('Get correct variable when create fragment pool success',   async function () {
                 const sig = await buildBuySeparator(mockTomo.address, TOMO_NAME, subject1, tomoHubEntryPointProxy.address, 1);
                 const price1 = await mockTomo.connect(user).getBuyPriceAfterFee(subject1, 1);
                 //const ethValue = price1.sub(10000000);

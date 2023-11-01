@@ -11,7 +11,8 @@ import {
     subject,
     subject1,
     TOMO_NAME,
-    buyAmountForFragment
+    buyAmountForFragment,
+    deployerAddress
 } from '../__setup.spec';
 import {
     TomoFragmentPool__factory,
@@ -122,6 +123,7 @@ makeSuiteCleanRoom('Buy Fragment Vote Pass', function () {
             it('Get correct variable if buy fragment vote pass success.',   async function () {
                 const poolAddress = (await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).fragmentPoolAddress;
                 expect(await ethers.provider.getBalance(poolAddress)).to.equal(0);
+                const beforeProtocolFeeBalance = await ethers.provider.getBalance(deployerAddress);
 
                 const fragmentPool = TomoFragmentPool__factory.connect(poolAddress, userTwo);
                 const price = await fragmentPool.getBuyPriceAfterFee(100);
@@ -135,6 +137,9 @@ makeSuiteCleanRoom('Buy Fragment Vote Pass', function () {
                 expect(await fragmentPool._currentLiquidity()).to.equal(buyAmountForFragment * 1000 - 100);
                 const contractBalance = await ethers.provider.getBalance(poolAddress)
                 expect(contractBalance).to.equal(price[1].sub(price[0].mul(200).div(10000)))
+
+                const afterProtocolFeeBalance = await ethers.provider.getBalance(deployerAddress);
+                expect(afterProtocolFeeBalance.sub(beforeProtocolFeeBalance)).to.equal(price[0].mul(200).div(10000));
             });
         })
     })

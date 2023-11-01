@@ -19,5 +19,6 @@ export const ERRORS = {
     VOTEPASS_NOT_ENOUGH: "VotePassNotEnough",
     NOT_AVAIABLE_AMOUNT: "NotAvaiableAmount",
     CANNOT_TRANSFER_SELF: "CanNotTransferSelf",
+    JUST_LIQUIDITYPROVIDER_CAN_QUIT: "JustLiquidityProviderCanQuit",
   };
   

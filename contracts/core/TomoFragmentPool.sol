@@ -183,6 +183,8 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         );
         delete _bLiquidityProvider[quitor];
         _fragBalance[quitor] = fragmentVotePass;
+        //liquidity provider quit, need sub account from _currentLiquidity
+        _currentLiquidity -= fragmentVotePass;
         _sellFragmentKey(fragmentVotePass, 0, quitor);
         if (ethValue > 0) {
             (bool success, ) = quitor.call{value: ethValue}("");

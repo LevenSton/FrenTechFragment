@@ -18,7 +18,7 @@ import {
 } from '../__setup.spec';
 import {
     TomoFragmentPool__factory,
-  } from '../../typechain-types';
+} from '../../typechain-types';
 import {buildBuySeparator} from '../helpers/utils'
 import { ERRORS } from '../helpers/errors';
 import { ethers } from 'hardhat';
