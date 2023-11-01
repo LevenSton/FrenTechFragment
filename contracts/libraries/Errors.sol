@@ -36,4 +36,5 @@ library Errors {
     error JustLiquidityProviderCanQuit();
     error DeadLineNeedMoreThanOneWeek();
     error SupplyCanNotBeZero();
+    error CanNotTradeZeroAmount();
 }

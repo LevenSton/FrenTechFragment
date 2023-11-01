@@ -124,9 +124,9 @@ makeSuiteCleanRoom('Create Tomo VotePass Pool', function () {
                     [sig.s],
                     {value: price1}
                 )).to.not.reverted
-                expect((await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).poolCreator).to.eq(userAddress);
-                expect((await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).holdAmount).to.eq(1);
-                expect((await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).subject).to.eq(subject1);
+                expect((await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).poolCreator).to.equal(userAddress);
+                expect((await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).holdAmount).to.equal(1);
+                expect((await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).subject).to.equal(subject1);
             });
         })
     })

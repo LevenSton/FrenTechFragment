@@ -217,14 +217,14 @@ contract Tomo is Ownable, ReentrancyGuard {
             (params.success, ) = vp.owner.call{value: params.subjectFee}(
                 new bytes(0)
             );
-            require(params.success, "Unable to send funds");
+            require(params.success, "Unable to send funds to vp.owner");
         }
         (params.success, ) = msg.sender.call{value: params.value}(new bytes(0));
-        require(params.success, "Unable to send funds");
+        require(params.success, "Unable to send funds to msg.sender");
         (params.success, ) = protocolFeeTo.call{value: params.protocolFee}(
             new bytes(0)
         );
-        require(params.success, "Unable to send funds");
+        require(params.success, "Unable to send funds to protocolFeeTo");
 
         emit Trade(
             TradeEvent({

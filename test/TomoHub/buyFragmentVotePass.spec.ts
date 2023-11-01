@@ -132,7 +132,7 @@ makeSuiteCleanRoom('Buy Fragment Vote Pass', function () {
                     {value: price[1]}
                 )).to.not.reverted
                 expect(await fragmentPool._fragBalance(userTwoAddress)).to.equal(100);
-                expect(await fragmentPool._currentLiquidity()).to.eq(buyAmountForFragment * 1000 - 100);
+                expect(await fragmentPool._currentLiquidity()).to.equal(buyAmountForFragment * 1000 - 100);
                 const contractBalance = await ethers.provider.getBalance(poolAddress)
                 expect(contractBalance).to.equal(price[1].sub(price[0].mul(200).div(10000)))
             });

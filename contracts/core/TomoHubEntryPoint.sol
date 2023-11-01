@@ -136,6 +136,7 @@ contract TomoHubEntryPoint is
         address poolAddress = _subjectToFragmentPool[subject]
             .fragmentPoolAddress;
         if (poolAddress == address(0)) revert Errors.FragmentPoolNotExist();
+        if (amount == 0) revert Errors.CanNotTradeZeroAmount();
         //buy amount fragment key
         uint256 buyPrice = ITomoFragmentPool(poolAddress).buyFragmentVotePass{
             value: msg.value
@@ -154,6 +155,7 @@ contract TomoHubEntryPoint is
         address poolAddress = _subjectToFragmentPool[subject]
             .fragmentPoolAddress;
         if (poolAddress == address(0)) revert Errors.FragmentPoolNotExist();
+        if (amount == 0) revert Errors.CanNotTradeZeroAmount();
         //sell amount fragment key
         uint256 sellPrice = ITomoFragmentPool(poolAddress).sellFragmentVotePass(
             amount,
@@ -174,8 +176,8 @@ contract TomoHubEntryPoint is
     //only call from fragment pool contract address
     function sellVotePass(
         bytes32 subject,
-        address seller,
-        uint256 amount
+        uint256 amount,
+        address payable seller
     ) external override whenNotPaused {
         if (_fragmentPoolToSubject[msg.sender] != subject)
             revert Errors.CallerNeedBeFragmentPool();

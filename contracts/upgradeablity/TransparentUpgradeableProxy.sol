@@ -121,6 +121,8 @@ contract TransparentUpgradeableProxy is ERC1967Proxy {
         _upgradeToAndCall(newImplementation, data, true);
     }
 
+    receive() external payable virtual override {}
+
     /**
      * @dev Returns the current admin.
      */

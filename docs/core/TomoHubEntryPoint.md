@@ -362,7 +362,7 @@ sell Vote Pass after be unlocked
 ### sellVotePass
 
 ```solidity
-function sellVotePass(bytes32 subject, address seller, uint256 amount) external nonpayable
+function sellVotePass(bytes32 subject, uint256 amount, address payable seller) external nonpayable
 ```
 
 Sell the Key/Vote. only can be called from FragmentPool address to help sell whole key to tomo
@@ -374,8 +374,8 @@ Sell the Key/Vote. only can be called from FragmentPool address to help sell who
 | Name | Type | Description |
 |---|---|---|
 | subject | bytes32 | Identity of one tomo. |
-| seller | address | The address of seller |
 | amount | uint256 | The sell amount. |
+| seller | address payable | The address of seller |
 
 ### setGovernance
 
@@ -664,6 +664,17 @@ error CallerNeedBeFragmentPool()
 
 ```solidity
 error CanNotSellBeforeDeadline()
+```
+
+
+
+
+
+
+### CanNotTradeZeroAmount
+
+```solidity
+error CanNotTradeZeroAmount()
 ```
 
 

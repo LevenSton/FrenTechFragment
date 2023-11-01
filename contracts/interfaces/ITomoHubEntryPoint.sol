@@ -78,13 +78,13 @@ interface ITomoHubEntryPoint {
      * only can be called from FragmentPool address to help sell whole key to tomo
      *
      * @param subject Identity of one tomo.
-     * @param seller The address of seller
      * @param amount The sell amount.
+     * @param seller The address of seller
      */
     function sellVotePass(
         bytes32 subject,
-        address seller,
-        uint256 amount
+        uint256 amount,
+        address payable seller
     ) external;
 
     /**

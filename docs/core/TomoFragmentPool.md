@@ -27,10 +27,10 @@ function BPS_MAX() external view returns (uint256)
 |---|---|---|
 | _0 | uint256 | undefined |
 
-### TOMO_Hub_ENTRYPOINT
+### TOMO_HUB_ENTRYPOINT
 
 ```solidity
-function TOMO_Hub_ENTRYPOINT() external view returns (address)
+function TOMO_HUB_ENTRYPOINT() external view returns (address)
 ```
 
 

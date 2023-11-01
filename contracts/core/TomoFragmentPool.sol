@@ -9,7 +9,7 @@ import {FeeSplitter} from "./payment/FeeSplitter.sol";
 import {TomoHubEntryPoint} from "./TomoHubEntryPoint.sol";
 
 contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
-    address public immutable TOMO_Hub_ENTRYPOINT;
+    address public immutable TOMO_HUB_ENTRYPOINT;
     address public immutable TOMO_IMPL;
 
     uint256 public constant _liquidityProviderFeePercent = 800;
@@ -36,7 +36,7 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
     constructor(address tomoFragmentEntryPoint, address tomoImpl) {
         if (tomoImpl == address(0) || tomoFragmentEntryPoint == address(0))
             revert Errors.InitParamsInvalid();
-        TOMO_Hub_ENTRYPOINT = tomoFragmentEntryPoint;
+        TOMO_HUB_ENTRYPOINT = tomoFragmentEntryPoint;
         TOMO_IMPL = tomoImpl;
         _initialized = true;
     }
@@ -78,7 +78,7 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         uint256 maxAcceptPrice,
         address payable buyer
     ) external payable override returns (uint256) {
-        if (msg.sender != TOMO_Hub_ENTRYPOINT)
+        if (msg.sender != TOMO_HUB_ENTRYPOINT)
             revert Errors.NotTomoFragmentEntryPoint();
         if (_currentLiquidity < amount) revert Errors.LiquidityNotEnough();
         if (_bLiquidityProvider[buyer])
@@ -111,7 +111,7 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         uint256 minAcceptPrice,
         address payable seller
     ) external override returns (uint256) {
-        if (msg.sender != TOMO_Hub_ENTRYPOINT)
+        if (msg.sender != TOMO_HUB_ENTRYPOINT)
             revert Errors.NotTomoFragmentEntryPoint();
         if (_bLiquidityProvider[seller])
             revert Errors.LiquidityProviderCanNotSell();
@@ -125,7 +125,7 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         address keyLiquidityProvider,
         uint256 keyAmount
     ) external override {
-        if (msg.sender != TOMO_Hub_ENTRYPOINT)
+        if (msg.sender != TOMO_HUB_ENTRYPOINT)
             revert Errors.NotTomoFragmentEntryPoint();
         uint256 total = keyAmount * _fragmentParam;
         //_fragBalance[liquidityProvider] = total;
@@ -144,7 +144,7 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
     function addETHLiquidity(
         address payable ethLiquidityProvider
     ) external payable override returns (uint256) {
-        if (msg.sender != TOMO_Hub_ENTRYPOINT)
+        if (msg.sender != TOMO_HUB_ENTRYPOINT)
             revert Errors.NotTomoFragmentEntryPoint();
         uint256 currentSupply = ITomo(TOMO_IMPL).getSubjectSupply(_subject);
         if (currentSupply == 0) revert Errors.SupplyCanNotBeZero();
@@ -173,7 +173,7 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
     function quitFromLiquidityProvider(
         address payable quitor
     ) external override {
-        if (msg.sender != TOMO_Hub_ENTRYPOINT)
+        if (msg.sender != TOMO_HUB_ENTRYPOINT)
             revert Errors.NotTomoFragmentEntryPoint();
         if (!_bLiquidityProvider[quitor])
             revert Errors.JustLiquidityProviderCanQuit();
@@ -245,10 +245,12 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
     ) private returns (uint256) {
         bool bSellWholeKey = false;
         uint256 priceSellToTomo = 0;
-        if (amount > _fragmentParam) {
+        if (amount >= _fragmentParam) {
             (priceSellToTomo, amount) = _sellToTomo(amount, seller);
             bSellWholeKey = true;
         }
+        if (bSellWholeKey && amount == 0) return priceSellToTomo;
+
         (uint256 price, uint256 priceAfterFee) = getSellPriceAfterFee(amount);
         if (priceAfterFee < minAcceptPrice && !bSellWholeKey) {
             revert Errors.LessThanMinAcceptPrice();
@@ -280,10 +282,10 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
             _subject,
             wholeKeyAmount
         );
-        TomoHubEntryPoint(TOMO_Hub_ENTRYPOINT).sellVotePass(
+        TomoHubEntryPoint(TOMO_HUB_ENTRYPOINT).sellVotePass(
             _subject,
-            seller,
-            wholeKeyAmount
+            wholeKeyAmount,
+            payable(seller)
         );
         uint256 sellAmount = wholeKeyAmount * _fragmentParam;
         _totalSupply -= sellAmount;

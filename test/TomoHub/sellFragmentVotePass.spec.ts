@@ -38,9 +38,9 @@ makeSuiteCleanRoom('Sell Fragment Vote Pass', function () {
                 [sig.s],
                 {value: price1}
             )).to.not.reverted
-            expect((await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).poolCreator).to.eq(userAddress);
-            expect((await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).holdAmount).to.eq(buyAmountForFragment);
-            expect((await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).subject).to.eq(subject1);
+            expect((await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).poolCreator).to.equal(userAddress);
+            expect((await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).holdAmount).to.equal(buyAmountForFragment);
+            expect((await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).subject).to.equal(subject1);
             const poolAddress = (await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).fragmentPoolAddress;
             const fragmentPool = TomoFragmentPool__factory.connect(poolAddress, userTwo);
             expect(await fragmentPool.connect(userTwo)._currentLiquidity()).to.eq(buyAmountForFragment * 1000);
@@ -161,6 +161,29 @@ makeSuiteCleanRoom('Sell Fragment Vote Pass', function () {
                 const afterBalance = await ethers.provider.getBalance(userTwoAddress);
                 expect((beforeBalance).sub(gasEth).add(price[1])).to.equal(afterBalance);
             });
+            // it('Get correct variable if sell fragment amount large equal fragmen param.',   async function () {
+            //     const poolAddress = (await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).fragmentPoolAddress;
+            //     const fragmentPool = TomoFragmentPool__factory.connect(poolAddress, userTwo);
+            //     const price2 = await fragmentPool.getBuyPriceAfterFee(900);
+            //     await expect(tomoHubEntryPointProxy.connect(userThree).buyFragmentVotePass(
+            //         subject1,
+            //         900,
+            //         price2[1],
+            //         {value: price2[1]}
+            //     )).to.not.be.reverted
+            //     expect(await fragmentPool._fragBalance(userThreeAddress)).to.equal(1100);
+
+            //     const beforeAmount = (await tomoHubEntryPointProxy.connect(userThree)._subjectToFragmentPool(subject1)).holdAmount;
+            //     //console.log(beforeAmount)
+            //     //const sellPrice = await fragmentPool.getSellPriceAfterFee(1000);
+            //     await expect(tomoHubEntryPointProxy.connect(userThree).sellFragmentVotePass(
+            //         subject1,
+            //         1000,
+            //         0
+            //     )).to.not.be.reverted;
+            //     // const afterAmount = (await tomoHubEntryPointProxy.connect(userThree)._subjectToFragmentPool(subject1)).holdAmount;
+            //     // expect(beforeAmount.sub(afterAmount)).to.equal(1);
+            // });
         })
     })
 })
