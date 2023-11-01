@@ -181,17 +181,21 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
             revert Errors.NotTomoFragmentEntryPoint();
         if (!_bLiquidityProvider[quitor])
             revert Errors.JustLiquidityProviderCanQuit();
-        (uint256 fragmentVotePass, uint256 ethValue) = _quitFromLiquidity(
-            quitor,
-            _currentLiquidity
-        );
+
+        (
+            uint256 liquidityAvailableGet,
+            ,
+            uint256 ethAvailableGet,
+
+        ) = _quitFromLiquidity(quitor, _currentLiquidity);
+
         delete _bLiquidityProvider[quitor];
-        _fragBalance[quitor] = fragmentVotePass;
+        _fragBalance[quitor] = liquidityAvailableGet;
         //liquidity provider quit, need sub account from _currentLiquidity
-        _currentLiquidity -= fragmentVotePass;
-        _sellFragmentKey(fragmentVotePass, 0, quitor);
-        if (ethValue > 0) {
-            (bool success, ) = quitor.call{value: ethValue}("");
+        _currentLiquidity -= liquidityAvailableGet;
+        _sellFragmentKey(liquidityAvailableGet, 0, quitor);
+        if (ethAvailableGet > 0) {
+            (bool success, ) = quitor.call{value: ethAvailableGet}("");
             if (!success) revert Errors.SendETHFailed();
         }
         _deleteQuitorLiquidityInfo(quitor);
@@ -208,12 +212,19 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
     /// @inheritdoc ITomoFragmentPool
     function getVotePassAndEthIfQuit(
         address quitor
-    ) external view override returns (uint256, uint256) {
-        (uint256 fragmentVotePass, uint256 ethValue) = _quitFromLiquidity(
-            quitor,
-            _currentLiquidity
+    ) external view override returns (uint256, uint256, uint256, uint256) {
+        (
+            uint256 liquidityAvailableGet,
+            uint256 userFrozenShareAmount,
+            uint256 ethAvailableGet,
+            uint256 ethFrozenGet
+        ) = _quitFromLiquidity(quitor, _currentLiquidity);
+        return (
+            liquidityAvailableGet,
+            userFrozenShareAmount,
+            ethAvailableGet,
+            ethFrozenGet
         );
-        return (fragmentVotePass, ethValue);
     }
 
     function getSellPriceAfterFee(

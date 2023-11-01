@@ -338,7 +338,7 @@ function getSellPriceAfterFee(uint256 amount) external view returns (uint256, ui
 ### getVotePassAndEthIfQuit
 
 ```solidity
-function getVotePassAndEthIfQuit(address quitor) external view returns (uint256, uint256)
+function getVotePassAndEthIfQuit(address quitor) external view returns (uint256, uint256, uint256, uint256)
 ```
 
 query how mant fragment votepass and eth can get if quit the liquidity
@@ -357,6 +357,8 @@ query how mant fragment votepass and eth can get if quit the liquidity
 |---|---|---|
 | _0 | uint256 | undefined |
 | _1 | uint256 | undefined |
+| _2 | uint256 | undefined |
+| _3 | uint256 | undefined |
 
 ### initialize
 

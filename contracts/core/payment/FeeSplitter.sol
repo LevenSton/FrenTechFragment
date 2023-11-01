@@ -67,27 +67,42 @@ contract FeeSplitter is Context {
     function _quitFromLiquidity(
         address liquidityProvider,
         uint256 currentLiquidity
-    ) internal view returns (uint256, uint256) {
+    ) internal view returns (uint256, uint256, uint256, uint256) {
         //get all liquidity provider effective time
         uint256 totalProviderEffectiveTime = _getTotalProviderEffectiveTime();
 
         //get user liquidity provider effective time and total share amount
         (
-            uint256 userShareAmount,
-            uint256 userEffectiveTime
+            uint256 userAvailableShareAmount,
+            uint256 userFrozenShareAmount,
+            uint256 userEffectiveTime,
+            uint256 userFrozenTime
         ) = _getUserShareAndEffectiveTime(liquidityProvider);
 
         //calculate how many the fragment vote pass can get
-        uint256 liquidityGet = (currentLiquidity *
-            userShareAmount *
+        uint256 liquidityAvailableGet = (currentLiquidity *
+            userAvailableShareAmount *
             userEffectiveTime) / (_totalShare * totalProviderEffectiveTime);
+
+        uint256 liquidityFronzenGet = (currentLiquidity *
+            userFrozenShareAmount *
+            userFrozenTime) / (_totalShare * totalProviderEffectiveTime);
 
         //calculate how many the eth can get
-        uint256 ethGet = (address(this).balance *
-            userShareAmount *
+        uint256 ethAvailableGet = (address(this).balance *
+            userAvailableShareAmount *
             userEffectiveTime) / (_totalShare * totalProviderEffectiveTime);
 
-        return (liquidityGet, ethGet);
+        uint256 ethFrozenGet = (address(this).balance *
+            userAvailableShareAmount *
+            userEffectiveTime) / (_totalShare * totalProviderEffectiveTime);
+
+        return (
+            liquidityAvailableGet,
+            liquidityFronzenGet,
+            ethAvailableGet,
+            ethFrozenGet
+        );
     }
 
     function _deleteQuitorLiquidityInfo(address liquidityProvider) internal {
@@ -117,18 +132,34 @@ contract FeeSplitter is Context {
 
     function _getUserShareAndEffectiveTime(
         address liquidityProvider
-    ) private view returns (uint256, uint256) {
+    ) private view returns (uint256, uint256, uint256, uint256) {
         //get user liquidity provider effective time and total share amount
         uint256 userLength = _userLiquidityLockIds[liquidityProvider].length();
-        uint256 userShareAmount = 0;
+        uint256 userAvailableShareAmount = 0;
+        uint256 userFrozenShareAmount = 0;
         uint256 userEffectiveTime = 0;
+        uint256 userFrozenTime = 0;
+
         for (uint256 i = 0; i < userLength; i++) {
             uint256 index = _userLiquidityLockIds[liquidityProvider].at(i);
-            userShareAmount += _liquidityIndexToShare[index]._amount;
-            userEffectiveTime +=
-                block.timestamp -
-                _liquidityIndexToShare[index]._timeStamp;
+            if (block.timestamp > _liquidityIndexToShare[index]._deadline) {
+                userAvailableShareAmount += _liquidityIndexToShare[index]
+                    ._amount;
+                userEffectiveTime +=
+                    block.timestamp -
+                    _liquidityIndexToShare[index]._timeStamp;
+            } else {
+                userFrozenShareAmount += _liquidityIndexToShare[index]._amount;
+                userFrozenTime +=
+                    block.timestamp -
+                    _liquidityIndexToShare[index]._timeStamp;
+            }
         }
-        return (userShareAmount, userEffectiveTime);
+        return (
+            userAvailableShareAmount,
+            userFrozenShareAmount,
+            userEffectiveTime,
+            userFrozenTime
+        );
     }
 }
