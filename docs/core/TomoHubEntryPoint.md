@@ -481,6 +481,25 @@ event AddFragmentKeyLiquidity(address fragmentPoolAddress, address liquidityProv
 | fragmentKeyLiquidity  | uint256 | undefined |
 | timeStamp  | uint256 | undefined |
 
+### BuyVotePassWithTimeStamp
+
+```solidity
+event BuyVotePassWithTimeStamp(bytes32 subject, uint256 amount, uint256 lockUntil, address buyer)
+```
+
+
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| subject  | bytes32 | undefined |
+| amount  | uint256 | undefined |
+| lockUntil  | uint256 | undefined |
+| buyer  | address | undefined |
+
 ### GovernanceSet
 
 ```solidity

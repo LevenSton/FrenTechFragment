@@ -254,6 +254,7 @@ contract TomoHubEntryPoint is
             s
         );
         _recordLockVotePassInfo(subject, amount, lockUntil);
+        _emitBuyVotePassWithTimeStamp(subject, amount, lockUntil, msg.sender);
     }
 
     /// @inheritdoc ITomoHubEntryPoint
@@ -265,25 +266,25 @@ contract TomoHubEntryPoint is
     ) external override whenNotPaused {
         if (_indexToVotePassLockInfo[lockIndex].owner != msg.sender)
             revert Errors.NotLockOwner();
-        if (_indexToVotePassLockInfo[lockIndex].lockUntil < block.timestamp)
+        if (block.timestamp < _indexToVotePassLockInfo[lockIndex].lockUntil)
             revert Errors.CanNotSellBeforeDeadline();
 
         uint256 lockAmount = _indexToVotePassLockInfo[lockIndex].amount;
-        if (amount > _indexToVotePassLockInfo[lockIndex].amount)
-            revert Errors.VotePassNotEnough();
+        if (amount > lockAmount) revert Errors.VotePassNotEnough();
 
         bytes32 subject = _indexToVotePassLockInfo[lockIndex].subject;
         uint256 sellPriceAfterFee = ITomo(TOMO_IMPL).getSellPriceAfterFee(
             subject,
-            lockAmount
+            amount
         );
         if (sellPriceAfterFee < minAcceptPrice)
             revert Errors.LessThanMinAcceptPrice();
         if (lockAmount == amount) {
             delete _indexToVotePassLockInfo[lockIndex];
             _userVotePassLockIds[msg.sender].remove(lockIndex);
+        } else {
+            _indexToVotePassLockInfo[lockIndex].amount -= amount;
         }
-        _indexToVotePassLockInfo[lockIndex].amount -= amount;
         ITomo(TOMO_IMPL).sellVotePass(subject, amount);
         (bool success, ) = receiveFund.call{value: sellPriceAfterFee}("");
         if (!success) revert Errors.SendETHFailed();
@@ -392,6 +393,15 @@ contract TomoHubEntryPoint is
             amount,
             block.timestamp
         );
+    }
+
+    function _emitBuyVotePassWithTimeStamp(
+        bytes32 subject,
+        uint256 amount,
+        uint256 lockUntil,
+        address buyer
+    ) private {
+        emit Events.BuyVotePassWithTimeStamp(subject, amount, lockUntil, buyer);
     }
 
     function _emitCreateNewFragmentPool(

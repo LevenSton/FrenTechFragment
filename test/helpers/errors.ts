@@ -14,5 +14,8 @@ export const ERRORS = {
     NOT_ENOUGH_FRAGMENT: "NotEnoughFragment",
     ETH_LIQUIDITY_NOT_ENOUGH: "ETHLiquidityNotEnough",
     CALLER_NEEDBE_FRAGMENTPOOL: "CallerNeedBeFragmentPool",
+    NOT_LOCK_OWNER: "NotLockOwner",
+    CANNOT_SELL_BEFORE_DEADLINE: "CanNotSellBeforeDeadline",
+    VOTEPASS_NOT_ENOUGH: "VotePassNotEnough",
   };
   

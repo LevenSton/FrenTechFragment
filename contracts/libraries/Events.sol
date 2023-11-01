@@ -73,4 +73,11 @@ library Events {
     );
 
     event TransferLockVotePass(uint256 lockIndex, address from, address to);
+
+    event BuyVotePassWithTimeStamp(
+        bytes32 subject,
+        uint256 amount,
+        uint256 lockUntil,
+        address buyer
+    );
 }

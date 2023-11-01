@@ -51,6 +51,9 @@ export let buyAmount1 = 220;
 export let buyAmountForFragment = 2;
 export let subject1 = utils.keccak256(utils.toUtf8Bytes("Tomo_Social"));
 export const TOMO_NAME = 'Tomo';
+export let currentTimestamp = parseInt((new Date().getTime() / 1000 ).toFixed(0))
+export let yestoday = parseInt((new Date().getTime() / 1000 ).toFixed(0)) - 24 * 3600
+export let tomorrow = parseInt((new Date().getTime() / 1000 ).toFixed(0)) + 24 * 3600
 
 export function makeSuiteCleanRoom(name: string, tests: () => void) {
   describe(name, () => {

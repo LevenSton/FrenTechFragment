@@ -63,21 +63,6 @@ makeSuiteCleanRoom('Create Tomo VotePass Pool', function () {
                     {value: ethValue}
                 )).to.be.revertedWithCustomError(tomoHubEntryPointProxy, ERRORS.LARGE_THAN_MAX_ACCEPTPRICE);
             });
-            it('User should fail to create a fragment pool when key price large than max accept price',   async function () {
-                const sig = await buildBuySeparator(mockTomo.address, TOMO_NAME, subject1, tomoHubEntryPointProxy.address, 5);
-                const price1 = await mockTomo.connect(user).getBuyPriceAfterFee(subject1, 5);
-                const ethValue = price1.mul(5);
-                await expect(tomoHubEntryPointProxy.connect(user).buyVotePassAndFragment(
-                    subject1,
-                    5,
-                    1000,
-                    price1.sub(10000),
-                    [sig.v],
-                    [sig.r],
-                    [sig.s],
-                    {value: ethValue}
-                )).to.be.revertedWithCustomError(tomoHubEntryPointProxy, ERRORS.LARGE_THAN_MAX_ACCEPTPRICE);
-            });
             it('failed to create fragment pool if use error address to sign',   async function () {
                 const sig = await buildBuySeparator(mockTomo.address, TOMO_NAME, subject1, userAddress, 1);
                 const price1 = await mockTomo.connect(user).getBuyPriceAfterFee(subject1, 1);
