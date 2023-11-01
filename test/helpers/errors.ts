@@ -13,5 +13,6 @@ export const ERRORS = {
     LIQUIDITY_PROVIDER_CANNOT_SELL: "LiquidityProviderCanNotSell",
     NOT_ENOUGH_FRAGMENT: "NotEnoughFragment",
     ETH_LIQUIDITY_NOT_ENOUGH: "ETHLiquidityNotEnough",
+    CALLER_NEEDBE_FRAGMENTPOOL: "CallerNeedBeFragmentPool",
   };
   

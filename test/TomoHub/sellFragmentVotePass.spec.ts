@@ -80,6 +80,14 @@ makeSuiteCleanRoom('Sell Fragment Vote Pass', function () {
                 )).to.be.revertedWithCustomError(tomoHubEntryPointProxy, ERRORS.FRAGMENT_POOL_NOT_EXIST);
             });
 
+            it('User should fail to sell whole vote pass directly though TomoHubEntryPoint contract.',   async function () {
+                await expect(tomoHubEntryPointProxy.connect(userTwo).sellVotePass(
+                    subject,
+                    1,
+                    userTwoAddress
+                )).to.be.revertedWithCustomError(tomoHubEntryPointProxy, ERRORS.CALLER_NEEDBE_FRAGMENTPOOL);
+            });
+
             it('User should fail to sell fragment vote pass if directly by though pool contract.',   async function () {
                 const poolAddress = (await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).fragmentPoolAddress;
                 const fragmentPool = TomoFragmentPool__factory.connect(poolAddress, userTwo);
@@ -151,11 +159,6 @@ makeSuiteCleanRoom('Sell Fragment Vote Pass', function () {
                     price[1]
                 )
                 const txReceipt = await txResp.wait();
-                // await expect(tomoHubEntryPointProxy.connect(userTwo).sellFragmentVotePass(
-                //     subject1,
-                //     50,
-                //     price[1]
-                // )).to.not.be.reverted;
                 const gasEth =  txReceipt.gasUsed.mul(txReceipt.effectiveGasPrice)
                 expect(await fragmentPool._fragBalance(userTwoAddress)).to.equal(50);
                 const afterBalance = await ethers.provider.getBalance(userTwoAddress);
@@ -191,6 +194,42 @@ makeSuiteCleanRoom('Sell Fragment Vote Pass', function () {
                 expect(beforeAmount.sub(afterAmount)).to.equal(1);
                 const afterBalance = await ethers.provider.getBalance(userThreeAddress);
                 expect((beforeBalance).sub(gasEth).add(sellPrice)).to.equal(afterBalance);
+            });
+            it('Get correct variable if sell fragment amount more than fragmen param.',   async function () {
+                const poolAddress = (await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).fragmentPoolAddress;
+                const fragmentPool = TomoFragmentPool__factory.connect(poolAddress, userTwo);
+                const price2 = await fragmentPool.getBuyPriceAfterFee(900);
+                await expect(tomoHubEntryPointProxy.connect(userThree).buyFragmentVotePass(
+                    subject1,
+                    900,
+                    price2[1],
+                    {value: price2[1]}
+                )).to.not.be.reverted
+                expect(await fragmentPool._fragBalance(userThreeAddress)).to.equal(1100);
+
+                const beforeAmount = (await tomoHubEntryPointProxy.connect(userThree)._subjectToFragmentPool(subject1)).holdAmount;
+                const sellPrice = await mockTomo.getSellPriceAfterFee(
+                    subject1,
+                    1
+                );
+                const currentSupply = await mockTomo.getSubjectSupply(subject1);
+                const keyPrice = await mockTomo.getPrice(currentSupply.sub(2), 1);
+                const fragPrice = keyPrice.mul(50).div(1000);
+                const fragPriceAfterFee = fragPrice.sub(fragPrice.mul(1000).div(10000));
+                    
+                const beforeBalance = await ethers.provider.getBalance(userThreeAddress);
+                const txResp = await tomoHubEntryPointProxy.connect(userThree).sellFragmentVotePass(
+                    subject1,
+                    1050,
+                    sellPrice
+                )
+                const txReceipt = await txResp.wait();
+                const gasEth =  txReceipt.gasUsed.mul(txReceipt.effectiveGasPrice);
+                expect(await fragmentPool._fragBalance(userThreeAddress)).to.equal(50);
+                const afterAmount = (await tomoHubEntryPointProxy.connect(userThree)._subjectToFragmentPool(subject1)).holdAmount;
+                expect(beforeAmount.sub(afterAmount)).to.equal(1);
+                const afterBalance = await ethers.provider.getBalance(userThreeAddress);
+                expect((beforeBalance).sub(gasEth).add(sellPrice).add(fragPriceAfterFee)).to.equal(afterBalance);
             });
         })
     })
