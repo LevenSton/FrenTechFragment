@@ -37,6 +37,7 @@ contract FeeSplitter is Context {
     struct Share {
         uint256 _amount;
         uint256 _timeStamp;
+        uint256 _deadline;
         address _liquidityProvider;
     }
     mapping(uint256 => Share) internal _liquidityIndexToShare;
@@ -53,6 +54,7 @@ contract FeeSplitter is Context {
         share._amount = shares;
         share._liquidityProvider = liquidityProvider;
         share._timeStamp = timeStamp;
+        share._deadline = deadline;
 
         _userLiquidityLockIds[liquidityProvider].add(_globalLiquidityIndex);
         _allLiquidityIndex.add(_globalLiquidityIndex);
