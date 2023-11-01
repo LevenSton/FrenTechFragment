@@ -278,19 +278,21 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         address payable seller
     ) private returns (uint256, uint256) {
         uint256 wholeKeyAmount = amount / _fragmentParam;
-        uint256 sellPrice = ITomo(TOMO_IMPL).getSellPrice(
+        uint256 sellPriceAfterFee = ITomo(TOMO_IMPL).getSellPriceAfterFee(
             _subject,
             wholeKeyAmount
         );
+
+        uint256 sellAmount = wholeKeyAmount * _fragmentParam;
+        _totalSupply -= sellAmount;
+        //_currentLiquidity -= sellAmount;
+        _fragBalance[seller] -= sellAmount;
+
         TomoHubEntryPoint(TOMO_HUB_ENTRYPOINT).sellVotePass(
             _subject,
             wholeKeyAmount,
             payable(seller)
         );
-        uint256 sellAmount = wholeKeyAmount * _fragmentParam;
-        _totalSupply -= sellAmount;
-        _currentLiquidity -= sellAmount;
-        _fragBalance[seller] -= sellAmount;
-        return (sellPrice, amount - sellAmount);
+        return (sellPriceAfterFee, amount - sellAmount);
     }
 }

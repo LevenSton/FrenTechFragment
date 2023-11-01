@@ -183,7 +183,6 @@ contract TomoHubEntryPoint is
             revert Errors.CallerNeedBeFragmentPool();
         if (_subjectToFragmentPool[subject].holdAmount < amount)
             revert Errors.VotePassNotEnough();
-
         uint256 sellPriceAfterFee = ITomo(TOMO_IMPL).getSellPriceAfterFee(
             subject,
             amount
