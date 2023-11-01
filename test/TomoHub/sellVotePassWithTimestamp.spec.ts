@@ -82,6 +82,20 @@ makeSuiteCleanRoom('Sell Whole Vote Pass With Timestamp', function () {
                     userAddress
                 )).to.be.revertedWithCustomError(tomoHubEntryPointProxy, ERRORS.LESS_THAN_MIN_ACCEPTPRICE);
             });
+
+            it('User should fail to transfer lock vote pass if not the owner.',   async function () {
+                await expect(tomoHubEntryPointProxy.connect(userTwo).transferLockVotePass(
+                    0,
+                    userAddress
+                )).to.be.revertedWithCustomError(tomoHubEntryPointProxy, ERRORS.NOT_LOCK_OWNER);
+            });
+
+            it('User should fail to transfer lock vote pass if transfer to self.',   async function () {
+                await expect(tomoHubEntryPointProxy.connect(user).transferLockVotePass(
+                    0,
+                    userAddress
+                )).to.be.revertedWithCustomError(tomoHubEntryPointProxy, ERRORS.CANNOT_TRANSFER_SELF);
+            });
         })
 
         context('Scenarios', function () {
@@ -121,11 +135,30 @@ makeSuiteCleanRoom('Sell Whole Vote Pass With Timestamp', function () {
                 const gasEth =  txReceipt.gasUsed.mul(txReceipt.effectiveGasPrice);
                 const afterBalance = await ethers.provider.getBalance(userAddress);
                 expect((beforeBalance).sub(gasEth).add(price)).to.equal(afterBalance);
-                
+
                 expect(((await tomoHubEntryPointProxy._indexToVotePassLockInfo(0)).subject)).to.equal(BYTES32_ZERO_ADDRESS);
                 expect(((await tomoHubEntryPointProxy._indexToVotePassLockInfo(0)).amount)).to.equal(0);
                 expect(((await tomoHubEntryPointProxy._indexToVotePassLockInfo(0)).lockUntil)).to.equal(0);
                 expect(((await tomoHubEntryPointProxy._indexToVotePassLockInfo(0)).owner)).to.equal(ZERO_ADDRESS);
+            });
+
+            it('Should get correct variable if transfer lock vote pass success.',   async function () {
+                await time.increase(2 * 24 * 3600);
+                expect(((await tomoHubEntryPointProxy._indexToVotePassLockInfo(0)).owner)).to.equal(userAddress);
+                expect((await tomoHubEntryPointProxy.checkIfHoldLockIndex(userAddress, 0))).to.equal(true);
+                expect((await tomoHubEntryPointProxy.checkIfHoldLockIndex(userTwoAddress, 0))).to.equal(false);
+
+                await expect(tomoHubEntryPointProxy.connect(user).transferLockVotePass(
+                    0,
+                    userTwoAddress
+                )).to.not.be.reverted;
+                expect(((await tomoHubEntryPointProxy._indexToVotePassLockInfo(0)).subject)).to.equal(subject1);
+                expect(((await tomoHubEntryPointProxy._indexToVotePassLockInfo(0)).amount)).to.equal(5);
+                expect(((await tomoHubEntryPointProxy._indexToVotePassLockInfo(0)).lockUntil)).to.equal(tomorrow);
+                expect(((await tomoHubEntryPointProxy._indexToVotePassLockInfo(0)).owner)).to.equal(userTwoAddress);
+
+                expect((await tomoHubEntryPointProxy.checkIfHoldLockIndex(userAddress, 0))).to.equal(false);
+                expect((await tomoHubEntryPointProxy.checkIfHoldLockIndex(userTwoAddress, 0))).to.equal(true);
             });
         })
     })

@@ -17,11 +17,26 @@ makeSuiteCleanRoom('Buy Whole Vote Pass With Timestamp', function () {
     context('Generic', function () {
 
         context('Negatives', function () {
+            it('User should fail to buy vote pass with timestamp if amount is zero.',   async function () {
+                const sig = await buildBuySeparator(mockTomo.address, TOMO_NAME, subject1, tomoHubEntryPointProxy.address, 1);
+                const price1 = await mockTomo.connect(user).getBuyPriceAfterFee(subject1, 1);
+                await expect(tomoHubEntryPointProxy.connect(user).buyVotePassWithLockTimeStamp(
+                    subject1,
+                    0,
+                    price1,
+                    currentTimestamp,
+                    [sig.v],
+                    [sig.r],
+                    [sig.s],
+                    {value: price1}
+                )).to.be.revertedWithCustomError(tomoHubEntryPointProxy, ERRORS.NOT_AVAIABLE_AMOUNT);
+            });
+
             it('User should fail to buy vote pass with timestamp if msg.value less than price.',   async function () {
                 const sig = await buildBuySeparator(mockTomo.address, TOMO_NAME, subject1, tomoHubEntryPointProxy.address, 1);
                 const price1 = await mockTomo.connect(user).getBuyPriceAfterFee(subject1, 1);
                 const ethValue = price1.sub(10000000);
-                await expect(tomoHubEntryPointProxy.connect(user).buyVotePassAndFragment(
+                await expect(tomoHubEntryPointProxy.connect(user).buyVotePassWithLockTimeStamp(
                     subject1,
                     1,
                     100000,
@@ -36,7 +51,7 @@ makeSuiteCleanRoom('Buy Whole Vote Pass With Timestamp', function () {
             it('User should fail to buy vote pass with timestamp if the price large than max accept price.',   async function () {
                 const sig = await buildBuySeparator(mockTomo.address, TOMO_NAME, subject1, tomoHubEntryPointProxy.address, 1);
                 const price1 = await mockTomo.connect(user).getBuyPriceAfterFee(subject1, 1);
-                await expect(tomoHubEntryPointProxy.connect(user).buyVotePassAndFragment(
+                await expect(tomoHubEntryPointProxy.connect(user).buyVotePassWithLockTimeStamp(
                     subject1,
                     1,
                     price1.sub(100000),

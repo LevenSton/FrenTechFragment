@@ -17,5 +17,7 @@ export const ERRORS = {
     NOT_LOCK_OWNER: "NotLockOwner",
     CANNOT_SELL_BEFORE_DEADLINE: "CanNotSellBeforeDeadline",
     VOTEPASS_NOT_ENOUGH: "VotePassNotEnough",
+    NOT_AVAIABLE_AMOUNT: "NotAvaiableAmount",
+    CANNOT_TRANSFER_SELF: "CanNotTransferSelf",
   };
   

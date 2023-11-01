@@ -237,6 +237,7 @@ contract TomoHubEntryPoint is
         bytes32[] calldata r,
         bytes32[] calldata s
     ) external payable override whenNotPaused {
+        if (amount == 0) revert Errors.NotAvaiableAmount();
         uint256 priceAfterFee = ITomo(TOMO_IMPL).getBuyPriceAfterFee(
             subject,
             amount
@@ -302,8 +303,11 @@ contract TomoHubEntryPoint is
         uint256 lockIndex,
         address to
     ) external override whenNotPaused {
+        if (msg.sender == to) revert Errors.CanNotTransferSelf();
         if (_indexToVotePassLockInfo[lockIndex].owner != msg.sender)
             revert Errors.NotLockOwner();
+
+        //The Follow three condition will never reach
         if (_indexToVotePassLockInfo[lockIndex].amount == 0)
             revert Errors.NotAvaiableAmount();
         if (!_userVotePassLockIds[msg.sender].contains(lockIndex))
@@ -313,6 +317,7 @@ contract TomoHubEntryPoint is
 
         _userVotePassLockIds[msg.sender].remove(lockIndex);
         _userVotePassLockIds[to].add(lockIndex);
+        _indexToVotePassLockInfo[lockIndex].owner = to;
         _emitTransferLockVotePass(lockIndex, msg.sender, to);
     }
 
@@ -325,6 +330,13 @@ contract TomoHubEntryPoint is
         address locker
     ) external view override returns (uint256[] memory) {
         return _userVotePassLockIds[locker].values();
+    }
+
+    function checkIfHoldLockIndex(
+        address locker,
+        uint256 lockIndex
+    ) external view override returns (bool) {
+        return _userVotePassLockIds[locker].contains(lockIndex);
     }
 
     /// @inheritdoc ITomoHubEntryPoint

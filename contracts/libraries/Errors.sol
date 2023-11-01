@@ -37,4 +37,5 @@ library Errors {
     error DeadLineNeedMoreThanOneWeek();
     error SupplyCanNotBeZero();
     error CanNotTradeZeroAmount();
+    error CanNotTransferSelf();
 }

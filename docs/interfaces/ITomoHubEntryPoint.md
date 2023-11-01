@@ -88,6 +88,29 @@ buy VotePass and set a lock time, can sell if timestame less than you set
 | r | bytes32[] | The r of signature |
 | s | bytes32[] | The s of signature |
 
+### checkIfHoldLockIndex
+
+```solidity
+function checkIfHoldLockIndex(address locker, uint256 lockIndex) external view returns (bool)
+```
+
+check if locker hold the index
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| locker | address | locker address |
+| lockIndex | uint256 | lock index |
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | bool | undefined |
+
 ### getAllLockIndexByAddress
 
 ```solidity

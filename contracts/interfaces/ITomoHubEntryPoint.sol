@@ -160,6 +160,17 @@ interface ITomoHubEntryPoint {
     ) external view returns (uint256[] memory);
 
     /**
+     * @notice check if locker hold the index
+     *
+     * @param locker locker address
+     * @param lockIndex lock index
+     */
+    function checkIfHoldLockIndex(
+        address locker,
+        uint256 lockIndex
+    ) external view returns (bool);
+
+    /**
      * @notice get Lock Info by index
      *
      * @param index LockIndex
