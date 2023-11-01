@@ -174,14 +174,23 @@ makeSuiteCleanRoom('Sell Fragment Vote Pass', function () {
                 expect(await fragmentPool._fragBalance(userThreeAddress)).to.equal(1100);
 
                 const beforeAmount = (await tomoHubEntryPointProxy.connect(userThree)._subjectToFragmentPool(subject1)).holdAmount;
-                const sellPrice = await fragmentPool.getSellPriceAfterFee(1000);
-                await expect(tomoHubEntryPointProxy.connect(userThree).sellFragmentVotePass(
+                const sellPrice = await mockTomo.getSellPriceAfterFee(
+                    subject1,
+                    1
+                );
+                const beforeBalance = await ethers.provider.getBalance(userThreeAddress);
+                const txResp = await tomoHubEntryPointProxy.connect(userThree).sellFragmentVotePass(
                     subject1,
                     1000,
-                    sellPrice[1]
-                )).to.not.be.reverted;
+                    sellPrice
+                )
+                const txReceipt = await txResp.wait();
+                const gasEth =  txReceipt.gasUsed.mul(txReceipt.effectiveGasPrice);
+                expect(await fragmentPool._fragBalance(userThreeAddress)).to.equal(100);
                 const afterAmount = (await tomoHubEntryPointProxy.connect(userThree)._subjectToFragmentPool(subject1)).holdAmount;
                 expect(beforeAmount.sub(afterAmount)).to.equal(1);
+                const afterBalance = await ethers.provider.getBalance(userThreeAddress);
+                expect((beforeBalance).sub(gasEth).add(sellPrice)).to.equal(afterBalance);
             });
         })
     })
