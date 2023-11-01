@@ -31,6 +31,7 @@ interface ITomoHubEntryPoint {
      * @param subject Identity of one tomo.
      * @param amount The buy amount.
      * @param fragmentAmount The amount of each key can fragment
+     * @param deadline The deadline this key liuquidity can quit
      * @param maxAcceptPrice The max price that call can pay for amount key.
      * @param v The V of signature
      * @param r The r of signature
@@ -40,7 +41,7 @@ interface ITomoHubEntryPoint {
         bytes32 subject,
         uint256 amount,
         uint256 fragmentAmount,
-        //uint256 deadline,
+        uint256 deadline,
         uint256 maxAcceptPrice,
         uint8[] calldata v,
         bytes32[] calldata r,
@@ -92,8 +93,12 @@ interface ITomoHubEntryPoint {
      * only can be called from FragmentPool address to help sell whole key to tomo
      *
      * @param subject Identity of one tomo.
+     * @param deadline The deadline this liquidity can quit
      */
-    function addETHLiquidity(bytes32 subject) external payable;
+    function addETHLiquidity(
+        bytes32 subject,
+        uint256 deadline
+    ) external payable;
 
     /**
      * @notice quit from liquidity provider, get back all votepass and eth reward.

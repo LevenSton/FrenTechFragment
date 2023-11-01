@@ -45,8 +45,6 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
     function initialize(
         bytes32 subject,
         uint256 fragmentParam,
-        uint256 keyAmount,
-        address keyLiquidityProvider,
         address protocolFeeAddress
     ) external override {
         if (_initialized) revert Errors.Initialized();
@@ -57,19 +55,20 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         _protocolFeeAddress = protocolFeeAddress;
         _subjectOwner = subjectOwner;
         _subject = subject;
-        uint256 total = keyAmount * fragmentParam;
+        _fragmentParam = fragmentParam;
+        //uint256 total = keyAmount * fragmentParam;
         //all liquidity provider share all _currentLiquidity and eth in contract, so not record the fragment balance of liquidity provider
         //_fragBalance[keyLiquidityProvider] = total;
-        _bLiquidityProvider[keyLiquidityProvider] = true;
-        _totalSupply = total;
-        _currentLiquidity = total;
-        _fragmentParam = fragmentParam;
+        // _bLiquidityProvider[keyLiquidityProvider] = true;
+        // _totalSupply = total;
+        // _currentLiquidity = total;
+        // _fragmentParam = fragmentParam;
 
-        _addLiquidityProvider(
-            keyLiquidityProvider,
-            keyAmount * _fragmentParam,
-            block.timestamp
-        );
+        // _addLiquidityProvider(
+        //     keyLiquidityProvider,
+        //     keyAmount * _fragmentParam,
+        //     block.timestamp
+        // );
     }
 
     /// @inheritdoc ITomoFragmentPool
@@ -123,11 +122,13 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
     /// @inheritdoc ITomoFragmentPool
     function addKeyLiquidity(
         address keyLiquidityProvider,
-        uint256 keyAmount
+        uint256 keyAmount,
+        uint256 deadline
     ) external override {
         if (msg.sender != TOMO_HUB_ENTRYPOINT)
             revert Errors.NotTomoFragmentEntryPoint();
         uint256 total = keyAmount * _fragmentParam;
+        //all liquidity provider share all _currentLiquidity and eth in contract, so not record the fragment balance of liquidity provider
         //_fragBalance[liquidityProvider] = total;
         _bLiquidityProvider[keyLiquidityProvider] = true;
         _totalSupply += total;
@@ -136,13 +137,15 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         _addLiquidityProvider(
             keyLiquidityProvider,
             keyAmount * _fragmentParam,
-            block.timestamp
+            block.timestamp,
+            deadline
         );
     }
 
     /// @inheritdoc ITomoFragmentPool
     function addETHLiquidity(
-        address payable ethLiquidityProvider
+        address payable ethLiquidityProvider,
+        uint256 deadline
     ) external payable override returns (uint256) {
         if (msg.sender != TOMO_HUB_ENTRYPOINT)
             revert Errors.NotTomoFragmentEntryPoint();
@@ -163,7 +166,8 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         _addLiquidityProvider(
             ethLiquidityProvider,
             liquidityKeyAmount,
-            block.timestamp
+            block.timestamp,
+            deadline
         );
         return liquidityKeyAmount;
     }

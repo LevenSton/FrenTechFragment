@@ -14,7 +14,8 @@ import {
     subject1,
     TOMO_NAME,
     buyAmountForFragment,
-    buyAmount1
+    buyAmount1,
+    one_week
 } from '../__setup.spec';
 import {
     TomoFragmentPool__factory,
@@ -32,6 +33,7 @@ makeSuiteCleanRoom('Sell Fragment Vote Pass', function () {
                 subject1,
                 buyAmountForFragment,
                 1000,
+                one_week,
                 price1,
                 [sig.v],
                 [sig.r],

@@ -92,14 +92,14 @@ contract TomoHubEntryPoint is
         bytes32 subject,
         uint256 amount,
         uint256 fragmentAmount,
-        //uint256 deadline,
+        uint256 deadline,
         uint256 maxAcceptPrice,
         uint8[] calldata v,
         bytes32[] calldata r,
         bytes32[] calldata s
     ) external payable override whenNotPaused {
-        // if (block.timestamp + ONE_WEEK < deadline)
-        //     revert Errors.DeadLineNeedMoreThanOneWeek();
+        if (block.timestamp + ONE_WEEK < deadline)
+            revert Errors.DeadLineNeedMoreThanOneWeek();
         //check if the key price enough for fragmention
         uint256 currentPrice = ITomo(TOMO_IMPL).getBuyPrice(subject, 1);
         if (currentPrice < _minPriceKeyCanFragment)
@@ -123,7 +123,7 @@ contract TomoHubEntryPoint is
             s
         );
         //record to fragment pool
-        _sendToTomoFragmentPool(subject, amount, fragmentAmount);
+        _sendToTomoFragmentPool(subject, amount, deadline, fragmentAmount);
     }
 
     /// @inheritdoc ITomoHubEntryPoint
@@ -195,13 +195,14 @@ contract TomoHubEntryPoint is
 
     /// @inheritdoc ITomoHubEntryPoint
     function addETHLiquidity(
-        bytes32 subject
+        bytes32 subject,
+        uint256 deadline
     ) external payable override whenNotPaused {
         address poolAddress = _subjectToFragmentPool[subject]
             .fragmentPoolAddress;
         if (poolAddress == address(0)) revert Errors.FragmentPoolNotExist();
         uint256 liquidityKeyAmount = ITomoFragmentPool(poolAddress)
-            .addETHLiquidity{value: msg.value}(payable(msg.sender));
+            .addETHLiquidity{value: msg.value}(payable(msg.sender), deadline);
 
         _emitAddKeyLiquidity(
             poolAddress,
@@ -368,7 +369,7 @@ contract TomoHubEntryPoint is
     function _sendToTomoFragmentPool(
         bytes32 subject,
         uint256 amount,
-        //uint256 deadline,
+        uint256 deadline,
         uint256 fragmentAmount
     ) internal {
         if (_subjectToFragmentPool[subject].fragmentPoolAddress == address(0)) {
@@ -378,8 +379,6 @@ contract TomoHubEntryPoint is
             ITomoFragmentPool(newFragmentPool).initialize(
                 subject,
                 fragmentAmount,
-                amount,
-                msg.sender,
                 _protocolFeeAddress
             );
             _subjectToFragmentPool[subject].subject = subject;
@@ -393,11 +392,10 @@ contract TomoHubEntryPoint is
                 newFragmentPool,
                 fragmentAmount
             );
-        } else {
-            ITomoFragmentPool(
-                _subjectToFragmentPool[subject].fragmentPoolAddress
-            ).addKeyLiquidity(msg.sender, amount);
         }
+        ITomoFragmentPool(_subjectToFragmentPool[subject].fragmentPoolAddress)
+            .addKeyLiquidity(msg.sender, amount, deadline);
+
         _subjectToFragmentPool[subject].holdAmount += amount;
         _emitAddKeyLiquidity(
             _subjectToFragmentPool[subject].fragmentPoolAddress,

@@ -54,6 +54,7 @@ export const TOMO_NAME = 'Tomo';
 export let currentTimestamp = parseInt((new Date().getTime() / 1000 ).toFixed(0))
 export let yestoday = parseInt((new Date().getTime() / 1000 ).toFixed(0)) - 24 * 3600
 export let tomorrow = parseInt((new Date().getTime() / 1000 ).toFixed(0)) + 24 * 3600
+export let one_week = parseInt((new Date().getTime() / 1000 ).toFixed(0)) + 7 * 24 * 3600
 
 export function makeSuiteCleanRoom(name: string, tests: () => void) {
   describe(name, () => {

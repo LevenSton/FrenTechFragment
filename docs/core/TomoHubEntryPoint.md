@@ -170,7 +170,7 @@ function _subjectToFragmentPool(bytes32) external view returns (bytes32 subject,
 ### addETHLiquidity
 
 ```solidity
-function addETHLiquidity(bytes32 subject) external payable
+function addETHLiquidity(bytes32 subject, uint256 deadline) external payable
 ```
 
 add eth liquidity for key pool. only can be called from FragmentPool address to help sell whole key to tomo
@@ -182,6 +182,7 @@ add eth liquidity for key pool. only can be called from FragmentPool address to 
 | Name | Type | Description |
 |---|---|---|
 | subject | bytes32 | Identity of one tomo. |
+| deadline | uint256 | The deadline this liquidity can quit |
 
 ### buyFragmentVotePass
 
@@ -204,7 +205,7 @@ Sell the Fragment Key/Vote.
 ### buyVotePassAndFragment
 
 ```solidity
-function buyVotePassAndFragment(bytes32 subject, uint256 amount, uint256 fragmentAmount, uint256 maxAcceptPrice, uint8[] v, bytes32[] r, bytes32[] s) external payable
+function buyVotePassAndFragment(bytes32 subject, uint256 amount, uint256 fragmentAmount, uint256 deadline, uint256 maxAcceptPrice, uint8[] v, bytes32[] r, bytes32[] s) external payable
 ```
 
 Buy And Fragment Key/Vote.
@@ -218,6 +219,7 @@ Buy And Fragment Key/Vote.
 | subject | bytes32 | Identity of one tomo. |
 | amount | uint256 | The buy amount. |
 | fragmentAmount | uint256 | The amount of each key can fragment |
+| deadline | uint256 | The deadline this key liuquidity can quit |
 | maxAcceptPrice | uint256 | The max price that call can pay for amount key. |
 | v | uint8[] | The V of signature |
 | r | bytes32[] | The r of signature |
@@ -739,6 +741,17 @@ error CanNotTransferSelf()
 
 ```solidity
 error CannotInitImplementation()
+```
+
+
+
+
+
+
+### DeadLineNeedMoreThanOneWeek
+
+```solidity
+error DeadLineNeedMoreThanOneWeek()
 ```
 
 

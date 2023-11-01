@@ -12,7 +12,8 @@ import {
     subject1,
     TOMO_NAME,
     buyAmountForFragment,
-    deployerAddress
+    deployerAddress,
+    one_week
 } from '../__setup.spec';
 import {
     TomoFragmentPool__factory,
@@ -30,6 +31,7 @@ makeSuiteCleanRoom('Buy Fragment Vote Pass', function () {
                 subject1,
                 buyAmountForFragment,
                 1000,
+                one_week,
                 price1,
                 [sig.v],
                 [sig.r],
@@ -137,7 +139,8 @@ makeSuiteCleanRoom('Buy Fragment Vote Pass', function () {
                 expect(await fragmentPool._currentLiquidity()).to.equal(buyAmountForFragment * 1000 - 100);
                 const contractBalance = await ethers.provider.getBalance(poolAddress)
                 expect(contractBalance).to.equal(price[1].sub(price[0].mul(200).div(10000)))
-
+                
+                //assert protocolFeeAddress get correct fee
                 const afterProtocolFeeBalance = await ethers.provider.getBalance(deployerAddress);
                 expect(afterProtocolFeeBalance.sub(beforeProtocolFeeBalance)).to.equal(price[0].mul(200).div(10000));
             });

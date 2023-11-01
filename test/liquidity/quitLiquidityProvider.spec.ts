@@ -1,5 +1,4 @@
 import '@nomiclabs/hardhat-ethers';
-import { utils } from 'ethers';
 import { expect } from 'chai';
 import {
     makeSuiteCleanRoom,
@@ -13,6 +12,7 @@ import {
     userTwo,
     userTwoAddress,
     buyAmountForFragment,
+    one_week
 } from '../__setup.spec';
 import {
     TomoFragmentPool__factory,
@@ -31,6 +31,7 @@ makeSuiteCleanRoom('Quit from liquidity provider', function () {
                 subject1,
                 buyAmountForFragment,
                 1000,
+                one_week,
                 price1,
                 [sig.v],
                 [sig.r],

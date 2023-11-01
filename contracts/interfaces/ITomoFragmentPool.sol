@@ -16,15 +16,11 @@ interface ITomoFragmentPool {
      * @notice Buy And Fragment Key/Vote.
      * @param subject Identity of one tomo.
      * @param fragmentParam The param which one key can split to
-     * @param keyAmount The amount key need to fragment
-     * @param liquidityProvider The liquidity Provider address.
      * @param protocolFeeAddress The protocol fee Address.
      */
     function initialize(
         bytes32 subject,
         uint256 fragmentParam,
-        uint256 keyAmount,
-        address liquidityProvider,
         address protocolFeeAddress
     ) external;
 
@@ -55,23 +51,27 @@ interface ITomoFragmentPool {
     ) external returns (uint256);
 
     /**
-     * @notice Add Key/Vote liquidity.
+     * @notice Add Key/Vote liquidity. all liquidity provider share all _currentLiquidity and eth in contract, so not record the fragment balance of liquidity provider
      *
      * @param liquidityProvider The liquidity provider address.
      * @param keyAmount The key amount
+     * @param deadline The deadline this liquidity can quit
      */
     function addKeyLiquidity(
         address liquidityProvider,
-        uint256 keyAmount
+        uint256 keyAmount,
+        uint256 deadline
     ) external;
 
     /**
      * @notice Add ETH liquidity.
      *
      * @param ethLiquidityProvider The eth provider address.
+     * @param deadline The deadline this liquidity can quit
      */
     function addETHLiquidity(
-        address payable ethLiquidityProvider
+        address payable ethLiquidityProvider,
+        uint256 deadline
     ) external payable returns (uint256);
 
     /**

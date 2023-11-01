@@ -46,7 +46,8 @@ contract FeeSplitter is Context {
     function _addLiquidityProvider(
         address liquidityProvider,
         uint256 shares,
-        uint256 timeStamp
+        uint256 timeStamp,
+        uint256 deadline
     ) internal {
         Share storage share = _liquidityIndexToShare[_globalLiquidityIndex];
         share._amount = shares;

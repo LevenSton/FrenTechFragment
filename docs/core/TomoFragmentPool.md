@@ -227,7 +227,7 @@ function _totalSupply() external view returns (uint256)
 ### addETHLiquidity
 
 ```solidity
-function addETHLiquidity(address payable ethLiquidityProvider) external payable returns (uint256)
+function addETHLiquidity(address payable ethLiquidityProvider, uint256 deadline) external payable returns (uint256)
 ```
 
 Add ETH liquidity.
@@ -239,6 +239,7 @@ Add ETH liquidity.
 | Name | Type | Description |
 |---|---|---|
 | ethLiquidityProvider | address payable | The eth provider address. |
+| deadline | uint256 | The deadline this liquidity can quit |
 
 #### Returns
 
@@ -249,10 +250,10 @@ Add ETH liquidity.
 ### addKeyLiquidity
 
 ```solidity
-function addKeyLiquidity(address keyLiquidityProvider, uint256 keyAmount) external nonpayable
+function addKeyLiquidity(address keyLiquidityProvider, uint256 keyAmount, uint256 deadline) external nonpayable
 ```
 
-Add Key/Vote liquidity.
+Add Key/Vote liquidity. all liquidity provider share all _currentLiquidity and eth in contract, so not record the fragment balance of liquidity provider
 
 
 
@@ -262,6 +263,7 @@ Add Key/Vote liquidity.
 |---|---|---|
 | keyLiquidityProvider | address | undefined |
 | keyAmount | uint256 | The key amount |
+| deadline | uint256 | The deadline this liquidity can quit |
 
 ### buyFragmentVotePass
 
@@ -359,7 +361,7 @@ query how mant fragment votepass and eth can get if quit the liquidity
 ### initialize
 
 ```solidity
-function initialize(bytes32 subject, uint256 fragmentParam, uint256 keyAmount, address keyLiquidityProvider, address protocolFeeAddress) external nonpayable
+function initialize(bytes32 subject, uint256 fragmentParam, address protocolFeeAddress) external nonpayable
 ```
 
 Buy And Fragment Key/Vote.
@@ -372,8 +374,6 @@ Buy And Fragment Key/Vote.
 |---|---|---|
 | subject | bytes32 | Identity of one tomo. |
 | fragmentParam | uint256 | The param which one key can split to |
-| keyAmount | uint256 | The amount key need to fragment |
-| keyLiquidityProvider | address | undefined |
 | protocolFeeAddress | address | The protocol fee Address. |
 
 ### quitFromLiquidityProvider

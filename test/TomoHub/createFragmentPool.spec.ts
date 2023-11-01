@@ -10,7 +10,8 @@ import {
     subject,
     subject1,
     TOMO_NAME,
-    governance
+    governance,
+    one_week
 } from '../__setup.spec';
 import {buildBuySeparator, TomoHubEntryPointState} from '../helpers/utils'
 import { ERRORS } from '../helpers/errors';
@@ -26,6 +27,7 @@ makeSuiteCleanRoom('Create Tomo VotePass Pool', function () {
                     subject,
                     1,
                     1000,
+                    one_week,
                     100000,
                     [sig.v],
                     [sig.r],
@@ -41,6 +43,7 @@ makeSuiteCleanRoom('Create Tomo VotePass Pool', function () {
                     subject1,
                     1,
                     1000,
+                    one_week,
                     100000,
                     [sig.v],
                     [sig.r],
@@ -56,6 +59,7 @@ makeSuiteCleanRoom('Create Tomo VotePass Pool', function () {
                     subject1,
                     5,
                     1000,
+                    one_week,
                     price1.sub(10000),
                     [sig.v],
                     [sig.r],
@@ -70,6 +74,7 @@ makeSuiteCleanRoom('Create Tomo VotePass Pool', function () {
                     subject1,
                     1,
                     1000,
+                    one_week,
                     price1,
                     [sig.v],
                     [sig.r],
@@ -85,6 +90,7 @@ makeSuiteCleanRoom('Create Tomo VotePass Pool', function () {
                     subject1,
                     1,
                     1000,
+                    one_week,
                     price1,
                     [sig.v],
                     [sig.r],
@@ -103,6 +109,7 @@ makeSuiteCleanRoom('Create Tomo VotePass Pool', function () {
                     subject1,
                     1,
                     1000,
+                    one_week,
                     price1,
                     [sig.v],
                     [sig.r],
