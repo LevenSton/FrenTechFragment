@@ -31,7 +31,7 @@ makeSuiteCleanRoom('Quit from liquidity provider', function () {
                 subject1,
                 buyAmountForFragment,
                 1000,
-                one_week,
+                one_week + 1000,
                 price1,
                 [sig.v],
                 [sig.r],

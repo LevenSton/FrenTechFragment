@@ -20,5 +20,6 @@ export const ERRORS = {
     NOT_AVAIABLE_AMOUNT: "NotAvaiableAmount",
     CANNOT_TRANSFER_SELF: "CanNotTransferSelf",
     JUST_LIQUIDITYPROVIDER_CAN_QUIT: "JustLiquidityProviderCanQuit",
+    DEADLINE_NEED_LARGETHAN_ONEWEEK: "DeadLineNeedMoreThanOneWeek",
   };
   

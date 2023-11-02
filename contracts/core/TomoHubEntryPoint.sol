@@ -98,7 +98,7 @@ contract TomoHubEntryPoint is
         bytes32[] calldata r,
         bytes32[] calldata s
     ) external payable override whenNotPaused {
-        if (block.timestamp + ONE_WEEK < deadline)
+        if (block.timestamp + ONE_WEEK > deadline)
             revert Errors.DeadLineNeedMoreThanOneWeek();
         //check if the key price enough for fragmention
         uint256 currentPrice = ITomo(TOMO_IMPL).getBuyPrice(subject, 1);
@@ -198,6 +198,8 @@ contract TomoHubEntryPoint is
         bytes32 subject,
         uint256 deadline
     ) external payable override whenNotPaused {
+        if (block.timestamp + ONE_WEEK > deadline)
+            revert Errors.DeadLineNeedMoreThanOneWeek();
         address poolAddress = _subjectToFragmentPool[subject]
             .fragmentPoolAddress;
         if (poolAddress == address(0)) revert Errors.FragmentPoolNotExist();

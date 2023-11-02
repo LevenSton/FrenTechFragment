@@ -20,6 +20,22 @@ makeSuiteCleanRoom('Create Tomo VotePass Pool', function () {
     context('Generic', function () {
 
         context('Negatives', function () {
+            it('User should fail to create a fragment pool when deadline less than one week',   async function () {
+                const sig = await buildBuySeparator(mockTomo.address, TOMO_NAME, subject1, tomoHubEntryPointProxy.address, 1);
+                const price1 = await mockTomo.connect(user).getBuyPriceAfterFee(subject1, 1);
+                await expect(tomoHubEntryPointProxy.connect(user).buyVotePassAndFragment(
+                    subject1,
+                    1,
+                    1000,
+                    one_week-1000,
+                    price1,
+                    [sig.v],
+                    [sig.r],
+                    [sig.s],
+                    {value: price1}
+                )).to.be.revertedWithCustomError(tomoHubEntryPointProxy, ERRORS.DEADLINE_NEED_LARGETHAN_ONEWEEK);
+            });
+
             it('User should fail to create a fragment pool when key price less than the minPriceKeyCanFragment',   async function () {
                 const sig = await buildBuySeparator(mockTomo.address, TOMO_NAME, subject, tomoHubEntryPointProxy.address, 1);
                 const ethValue = utils.parseEther("2");
@@ -27,7 +43,7 @@ makeSuiteCleanRoom('Create Tomo VotePass Pool', function () {
                     subject,
                     1,
                     1000,
-                    one_week,
+                    one_week + 1000,
                     100000,
                     [sig.v],
                     [sig.r],
@@ -43,7 +59,7 @@ makeSuiteCleanRoom('Create Tomo VotePass Pool', function () {
                     subject1,
                     1,
                     1000,
-                    one_week,
+                    one_week + 1000,
                     100000,
                     [sig.v],
                     [sig.r],
@@ -59,7 +75,7 @@ makeSuiteCleanRoom('Create Tomo VotePass Pool', function () {
                     subject1,
                     5,
                     1000,
-                    one_week,
+                    one_week + 1000,
                     price1.sub(10000),
                     [sig.v],
                     [sig.r],
@@ -74,7 +90,7 @@ makeSuiteCleanRoom('Create Tomo VotePass Pool', function () {
                     subject1,
                     1,
                     1000,
-                    one_week,
+                    one_week + 1000,
                     price1,
                     [sig.v],
                     [sig.r],
@@ -90,7 +106,7 @@ makeSuiteCleanRoom('Create Tomo VotePass Pool', function () {
                     subject1,
                     1,
                     1000,
-                    one_week,
+                    one_week + 1000,
                     price1,
                     [sig.v],
                     [sig.r],
@@ -109,7 +125,7 @@ makeSuiteCleanRoom('Create Tomo VotePass Pool', function () {
                     subject1,
                     1,
                     1000,
-                    one_week,
+                    one_week + 1000,
                     price1,
                     [sig.v],
                     [sig.r],

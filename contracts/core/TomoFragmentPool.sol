@@ -56,19 +56,6 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         _subjectOwner = subjectOwner;
         _subject = subject;
         _fragmentParam = fragmentParam;
-        //uint256 total = keyAmount * fragmentParam;
-        //all liquidity provider share all _currentLiquidity and eth in contract, so not record the fragment balance of liquidity provider
-        //_fragBalance[keyLiquidityProvider] = total;
-        // _bLiquidityProvider[keyLiquidityProvider] = true;
-        // _totalSupply = total;
-        // _currentLiquidity = total;
-        // _fragmentParam = fragmentParam;
-
-        // _addLiquidityProvider(
-        //     keyLiquidityProvider,
-        //     keyAmount * _fragmentParam,
-        //     block.timestamp
-        // );
     }
 
     /// @inheritdoc ITomoFragmentPool
