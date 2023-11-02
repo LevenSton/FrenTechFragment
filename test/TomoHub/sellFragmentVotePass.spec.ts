@@ -84,7 +84,7 @@ makeSuiteCleanRoom('Sell Fragment Vote Pass', function () {
 
             it('User should fail to sell whole vote pass directly though TomoHubEntryPoint contract.',   async function () {
                 await expect(tomoHubEntryPointProxy.connect(userTwo).sellVotePass(
-                    subject,
+                    subject1,
                     1,
                     userTwoAddress
                 )).to.be.revertedWithCustomError(tomoHubEntryPointProxy, ERRORS.CALLER_NEEDBE_FRAGMENTPOOL);

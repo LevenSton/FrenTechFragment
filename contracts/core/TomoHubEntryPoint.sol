@@ -179,8 +179,10 @@ contract TomoHubEntryPoint is
         uint256 amount,
         address payable seller
     ) external override whenNotPaused {
-        if (_fragmentPoolToSubject[msg.sender] != subject)
-            revert Errors.CallerNeedBeFragmentPool();
+        address poolAddress = _subjectToFragmentPool[subject]
+            .fragmentPoolAddress;
+        if (poolAddress == address(0)) revert Errors.FragmentPoolNotExist();
+        if (msg.sender != poolAddress) revert Errors.CallerNeedBeFragmentPool();
         if (_subjectToFragmentPool[subject].holdAmount < amount)
             revert Errors.VotePassNotEnough();
         uint256 sellPriceAfterFee = ITomo(TOMO_IMPL).getSellPriceAfterFee(
@@ -200,6 +202,7 @@ contract TomoHubEntryPoint is
     ) external payable override whenNotPaused {
         if (block.timestamp + ONE_WEEK > deadline)
             revert Errors.DeadLineNeedMoreThanOneWeek();
+        if (msg.value == 0) revert Errors.MsgValueCanNotBeZero();
         address poolAddress = _subjectToFragmentPool[subject]
             .fragmentPoolAddress;
         if (poolAddress == address(0)) revert Errors.FragmentPoolNotExist();
@@ -387,7 +390,6 @@ contract TomoHubEntryPoint is
             _subjectToFragmentPool[subject].poolCreator = msg.sender;
             _subjectToFragmentPool[subject]
                 .fragmentPoolAddress = newFragmentPool;
-            _fragmentPoolToSubject[newFragmentPool] = subject;
             _emitCreateNewFragmentPool(
                 subject,
                 msg.sender,

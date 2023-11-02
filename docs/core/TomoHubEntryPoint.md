@@ -10,28 +10,6 @@
 
 ## Methods
 
-### _fragmentPoolToSubject
-
-```solidity
-function _fragmentPoolToSubject(address) external view returns (bytes32)
-```
-
-
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | address | undefined |
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | bytes32 | undefined |
-
 ### _globalLockIndex
 
 ```solidity
@@ -829,6 +807,17 @@ error LargeThanMaxAcceptPrice()
 
 ```solidity
 error LessThanMinAcceptPrice()
+```
+
+
+
+
+
+
+### MsgValueCanNotBeZero
+
+```solidity
+error MsgValueCanNotBeZero()
 ```
 
 

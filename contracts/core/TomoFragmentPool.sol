@@ -171,14 +171,15 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
 
         (
             uint256 liquidityAvailableGet,
-            ,
+            uint256 liquidityFrozenGet,
             uint256 ethAvailableGet,
 
         ) = _quitFromLiquidity(quitor, _currentLiquidity);
 
-        delete _bLiquidityProvider[quitor];
+        if (liquidityFrozenGet == 0) delete _bLiquidityProvider[quitor];
         _fragBalance[quitor] = liquidityAvailableGet;
         //liquidity provider quit, need sub account from _currentLiquidity
+        //_totalShare -= liquidityAvailableGet;
         _currentLiquidity -= liquidityAvailableGet;
         _sellFragmentKey(liquidityAvailableGet, 0, quitor);
         if (ethAvailableGet > 0) {

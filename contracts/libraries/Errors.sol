@@ -38,4 +38,5 @@ library Errors {
     error SupplyCanNotBeZero();
     error CanNotTradeZeroAmount();
     error CanNotTransferSelf();
+    error MsgValueCanNotBeZero();
 }

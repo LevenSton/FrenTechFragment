@@ -10,28 +10,6 @@ This is an abstract contract that *only* contains storage for the TomoFragment c
 
 ## Methods
 
-### _fragmentPoolToSubject
-
-```solidity
-function _fragmentPoolToSubject(address) external view returns (bytes32)
-```
-
-
-
-
-
-#### Parameters
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | address | undefined |
-
-#### Returns
-
-| Name | Type | Description |
-|---|---|---|
-| _0 | bytes32 | undefined |
-
 ### _globalLockIndex
 
 ```solidity

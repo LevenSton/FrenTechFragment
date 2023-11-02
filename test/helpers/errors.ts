@@ -21,5 +21,7 @@ export const ERRORS = {
     CANNOT_TRANSFER_SELF: "CanNotTransferSelf",
     JUST_LIQUIDITYPROVIDER_CAN_QUIT: "JustLiquidityProviderCanQuit",
     DEADLINE_NEED_LARGETHAN_ONEWEEK: "DeadLineNeedMoreThanOneWeek",
+    MSGVALUE_CANNOTBE_ZERO: "MsgValueCanNotBeZero",
+    ETH_VALUE_TOO_LOW: "ETHValueTooLow",
   };
   

@@ -17,9 +17,6 @@ abstract contract TomoHubStorage {
     //map for subject to pool
     mapping(bytes32 => DataTypes.FragmentConfig) public _subjectToFragmentPool;
 
-    //map for pool to subject
-    mapping(address => bytes32) public _fragmentPoolToSubject;
-
     //map for lockindex to LockInfo
     mapping(uint256 => DataTypes.VotePassLockInfo)
         public _indexToVotePassLockInfo;
