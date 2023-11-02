@@ -80,6 +80,8 @@ makeSuiteCleanRoom('Quit from liquidity provider', function () {
                 const numVotePassAndEth = await fragmentPool.getVotePassAndEthIfQuit(userAddress);
                 expect(numVotePassAndEth[0]).to.equal(2000);
                 expect(numVotePassAndEth[1]).to.equal(0);
+                expect(numVotePassAndEth[2]).to.equal(0);
+                expect(numVotePassAndEth[3]).to.equal(0);
 
                 const price = await mockTomo.getSellPriceAfterFee(subject1, buyAmountForFragment);
                 const beforeBalance = await ethers.provider.getBalance(userAddress);
@@ -124,7 +126,7 @@ makeSuiteCleanRoom('Quit from liquidity provider', function () {
                 const txReceipt = await txResp.wait();
                 const gasEth =  txReceipt.gasUsed.mul(txReceipt.effectiveGasPrice);
                 const afterBalance = await ethers.provider.getBalance(userAddress);
-                // expect((beforeBalance).sub(gasEth).add(price1).add(numVotePassAndEth[1])).to.equal(afterBalance);
+                expect((beforeBalance).sub(gasEth).add(price1).add(numVotePassAndEth[2])).to.equal(afterBalance);
                 expect(await fragmentPool._fragBalance(userAddress)).to.equal(900);
             });
         })
