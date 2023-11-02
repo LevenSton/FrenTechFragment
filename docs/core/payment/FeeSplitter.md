@@ -27,6 +27,40 @@ function BPS_MAX() external view returns (uint256)
 |---|---|---|
 | _0 | uint256 | undefined |
 
+### _globalLiquidityIndex
+
+```solidity
+function _globalLiquidityIndex() external view returns (uint256)
+```
+
+
+
+
+
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | uint256 | undefined |
+
+### _totalShare
+
+```solidity
+function _totalShare() external view returns (uint256)
+```
+
+
+
+
+
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | uint256 | undefined |
+
 
 
 

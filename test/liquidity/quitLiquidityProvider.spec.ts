@@ -44,7 +44,6 @@ makeSuiteCleanRoom('Quit from liquidity provider', function () {
             const poolAddress = (await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).fragmentPoolAddress;
             const fragmentPool = TomoFragmentPool__factory.connect(poolAddress, user);
             expect(await fragmentPool._currentLiquidity()).to.eq(buyAmountForFragment * 1000);
-            expect(await fragmentPool._totalSupply()).to.eq(buyAmountForFragment * 1000);
         });
 
         context('Negatives', function () {
@@ -74,7 +73,7 @@ makeSuiteCleanRoom('Quit from liquidity provider', function () {
 
         context('Scenarios', function () {
             it('Get correct variable when quit from liquidity providers success(no one buy fragment vote pass)',   async function () {
-                await time.increase(one_week);
+                await time.increase(8 * 24 * 3600);
                 const poolAddress = (await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).fragmentPoolAddress;
                 const fragmentPool = TomoFragmentPool__factory.connect(poolAddress, user);
                 const numVotePassAndEth = await fragmentPool.getVotePassAndEthIfQuit(userAddress);
@@ -94,11 +93,10 @@ makeSuiteCleanRoom('Quit from liquidity provider', function () {
                 expect((beforeBalance).sub(gasEth).add(price)).to.equal(afterBalance);
 
                 expect(await fragmentPool._currentLiquidity()).to.eq(0);
-                expect(await fragmentPool._totalSupply()).to.eq(0);
             });
 
             it('Get correct variable when quit from liquidity providers success(some one buy part fragment vote pass)',   async function () {
-                await time.increase(one_week * 2);
+                await time.increase(7 * 24 * 3600 * 2);
                 //userTwo buy 100 fragment vote pass, total 2000 liquidity 
                 const poolAddress = (await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).fragmentPoolAddress;
                 expect(await ethers.provider.getBalance(poolAddress)).to.equal(0);
@@ -120,6 +118,8 @@ makeSuiteCleanRoom('Quit from liquidity provider', function () {
                 const price1 = await mockTomo.getSellPriceAfterFee(subject1, 1);
                 const beforeBalance = await ethers.provider.getBalance(userAddress);
                 const numVotePassAndEth = await fragmentPool.getVotePassAndEthIfQuit(userAddress);
+                expect(numVotePassAndEth[0]).to.equal(1900);
+                expect(numVotePassAndEth[1]).to.equal(0);
                 const txResp =  await tomoHubEntryPointProxy.connect(user).quitFromLiquidityProvider(
                     subject1
                 );

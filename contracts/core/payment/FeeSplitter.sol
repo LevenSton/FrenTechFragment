@@ -30,9 +30,9 @@ contract FeeSplitter is Context {
 
     uint256 public constant BPS_MAX = 10000;
 
-    uint256 private _totalShare;
+    uint256 public _totalShare;
 
-    uint256 private _globalLiquidityIndex;
+    uint256 public _globalLiquidityIndex;
 
     struct Share {
         uint256 _amount;
@@ -67,7 +67,7 @@ contract FeeSplitter is Context {
     function _quitFromLiquidity(
         address liquidityProvider,
         uint256 currentLiquidity
-    ) internal view returns (uint256, uint256, uint256, uint256) {
+    ) internal view returns (uint256[] memory, uint256[] memory) {
         //get all liquidity provider effective time
         uint256 totalProviderEffectiveTime = _getTotalProviderEffectiveTime();
 
@@ -76,43 +76,51 @@ contract FeeSplitter is Context {
             uint256 userAvailableShareAmount,
             uint256 userFrozenShareAmount,
             uint256 userEffectiveTime,
-            uint256 userFrozenTime
+            uint256 userFrozenTime,
+            uint256[] memory availableIndex
         ) = _getUserShareAndEffectiveTime(liquidityProvider);
 
-        //calculate how many the fragment vote pass can get
-        uint256 liquidityAvailableGet = (currentLiquidity *
-            userAvailableShareAmount *
-            userEffectiveTime) / (_totalShare * totalProviderEffectiveTime);
+        uint256[] memory rewardGet = new uint256[](4);
+        //calculate how many the available fragment vote pass can get
+        rewardGet[0] =
+            (currentLiquidity * userAvailableShareAmount * userEffectiveTime) /
+            (_totalShare * totalProviderEffectiveTime);
 
-        uint256 liquidityFronzenGet = (currentLiquidity *
-            userFrozenShareAmount *
-            userFrozenTime) / (_totalShare * totalProviderEffectiveTime);
+        //calculate how many the frozen fragment vote pass
+        rewardGet[1] =
+            (currentLiquidity * userFrozenShareAmount * userFrozenTime) /
+            (_totalShare * totalProviderEffectiveTime);
 
         //calculate how many the eth can get
-        uint256 ethAvailableGet = (address(this).balance *
-            userAvailableShareAmount *
-            userEffectiveTime) / (_totalShare * totalProviderEffectiveTime);
+        rewardGet[2] =
+            (address(this).balance *
+                userAvailableShareAmount *
+                userEffectiveTime) /
+            (_totalShare * totalProviderEffectiveTime);
 
-        uint256 ethFrozenGet = (address(this).balance *
-            userAvailableShareAmount *
-            userEffectiveTime) / (_totalShare * totalProviderEffectiveTime);
+        //calculate how many frozen eth
+        rewardGet[3] =
+            (address(this).balance * userFrozenShareAmount * userFrozenTime) /
+            (_totalShare * totalProviderEffectiveTime);
 
-        return (
-            liquidityAvailableGet,
-            liquidityFronzenGet,
-            ethAvailableGet,
-            ethFrozenGet
-        );
+        return (rewardGet, availableIndex);
     }
 
-    function _deleteQuitorLiquidityInfo(address liquidityProvider) internal {
-        uint256 userLength = _userLiquidityLockIds[liquidityProvider].length();
-        for (uint256 i = 0; i < userLength; i++) {
-            uint256 index = _userLiquidityLockIds[liquidityProvider].at(i);
-            _allLiquidityIndex.remove(index);
-            delete _liquidityIndexToShare[index];
+    function _deleteQuitorLiquidityInfo(
+        address liquidityProvider,
+        uint256[] memory availableIndexArr
+    ) internal {
+        uint256 lengthArr = availableIndexArr.length;
+        for (uint256 i = 0; i < lengthArr; i++) {
+            _allLiquidityIndex.remove(availableIndexArr[i]);
+            delete _liquidityIndexToShare[availableIndexArr[i]];
+            _userLiquidityLockIds[liquidityProvider].remove(
+                availableIndexArr[i]
+            );
         }
-        delete _userLiquidityLockIds[liquidityProvider];
+        if (_userLiquidityLockIds[liquidityProvider].length() == 0) {
+            delete _userLiquidityLockIds[liquidityProvider];
+        }
     }
 
     /// ***************************************
@@ -132,14 +140,22 @@ contract FeeSplitter is Context {
 
     function _getUserShareAndEffectiveTime(
         address liquidityProvider
-    ) private view returns (uint256, uint256, uint256, uint256) {
+    )
+        private
+        view
+        returns (
+            uint256 userAvailableShareAmount,
+            uint256 userFrozenShareAmount,
+            uint256 userEffectiveTime,
+            uint256 userFrozenTime,
+            uint256[] memory availableIndex
+        )
+    {
         //get user liquidity provider effective time and total share amount
         uint256 userLength = _userLiquidityLockIds[liquidityProvider].length();
-        uint256 userAvailableShareAmount = 0;
-        uint256 userFrozenShareAmount = 0;
-        uint256 userEffectiveTime = 0;
-        uint256 userFrozenTime = 0;
 
+        uint256 size = 0;
+        uint256 counter = 0;
         for (uint256 i = 0; i < userLength; i++) {
             uint256 index = _userLiquidityLockIds[liquidityProvider].at(i);
             if (block.timestamp > _liquidityIndexToShare[index]._deadline) {
@@ -148,6 +164,8 @@ contract FeeSplitter is Context {
                 userEffectiveTime +=
                     block.timestamp -
                     _liquidityIndexToShare[index]._timeStamp;
+                //availableIndex[j] = index;
+                size++;
             } else {
                 userFrozenShareAmount += _liquidityIndexToShare[index]._amount;
                 userFrozenTime +=
@@ -155,11 +173,20 @@ contract FeeSplitter is Context {
                     _liquidityIndexToShare[index]._timeStamp;
             }
         }
+        availableIndex = new uint256[](size);
+        for (uint256 i = 0; i < userLength; i++) {
+            uint256 index = _userLiquidityLockIds[liquidityProvider].at(i);
+            if (block.timestamp > _liquidityIndexToShare[index]._deadline) {
+                availableIndex[counter] = index;
+                counter++;
+            }
+        }
         return (
             userAvailableShareAmount,
             userFrozenShareAmount,
             userEffectiveTime,
-            userFrozenTime
+            userFrozenTime,
+            availableIndex
         );
     }
 }

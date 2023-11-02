@@ -94,7 +94,7 @@ interface ITomoFragmentPool {
      */
     function getVotePassAndEthIfQuit(
         address quitor
-    ) external view returns (uint256, uint256, uint256, uint256);
+    ) external view returns (uint256[] memory);
 
     function getSellPriceAfterFee(
         uint256 amount

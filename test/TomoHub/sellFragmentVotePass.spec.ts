@@ -46,8 +46,6 @@ makeSuiteCleanRoom('Sell Fragment Vote Pass', function () {
             const poolAddress = (await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).fragmentPoolAddress;
             const fragmentPool = TomoFragmentPool__factory.connect(poolAddress, userTwo);
             expect(await fragmentPool.connect(userTwo)._currentLiquidity()).to.eq(buyAmountForFragment * 1000);
-            expect(await fragmentPool.connect(userTwo)._totalSupply()).to.eq(buyAmountForFragment * 1000);
-
             const price = await fragmentPool.getBuyPriceAfterFee(100);
             await expect(tomoHubEntryPointProxy.connect(userTwo).buyFragmentVotePass(
                 subject1,

@@ -21,7 +21,7 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
     address public _subjectOwner;
     bytes32 public _subject;
 
-    uint256 public _totalSupply;
+    //uint256 public _totalSupply;
     uint256 public _currentLiquidity;
     uint256 public _fragmentParam; //how mant fragment one key can split
     mapping(address => uint256) public _fragBalance;
@@ -118,7 +118,6 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         //all liquidity provider share all _currentLiquidity and eth in contract, so not record the fragment balance of liquidity provider
         //_fragBalance[liquidityProvider] = total;
         _bLiquidityProvider[keyLiquidityProvider] = true;
-        _totalSupply += total;
         _currentLiquidity += total;
 
         _addLiquidityProvider(
@@ -170,23 +169,21 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
             revert Errors.JustLiquidityProviderCanQuit();
 
         (
-            uint256 liquidityAvailableGet,
-            uint256 liquidityFrozenGet,
-            uint256 ethAvailableGet,
-
+            uint256[] memory rewardGet,
+            uint256[] memory availableIndex
         ) = _quitFromLiquidity(quitor, _currentLiquidity);
 
-        if (liquidityFrozenGet == 0) delete _bLiquidityProvider[quitor];
-        _fragBalance[quitor] = liquidityAvailableGet;
+        if (rewardGet[0] == 0) delete _bLiquidityProvider[quitor];
+        _fragBalance[quitor] = rewardGet[0];
         //liquidity provider quit, need sub account from _currentLiquidity
-        //_totalShare -= liquidityAvailableGet;
-        _currentLiquidity -= liquidityAvailableGet;
-        _sellFragmentKey(liquidityAvailableGet, 0, quitor);
-        if (ethAvailableGet > 0) {
-            (bool success, ) = quitor.call{value: ethAvailableGet}("");
+        _currentLiquidity -= rewardGet[0];
+        _totalShare -= rewardGet[0];
+        _sellFragmentKey(rewardGet[0], 0, quitor);
+        if (rewardGet[2] > 0) {
+            (bool success, ) = quitor.call{value: rewardGet[2]}("");
             if (!success) revert Errors.SendETHFailed();
         }
-        _deleteQuitorLiquidityInfo(quitor);
+        _deleteQuitorLiquidityInfo(quitor, availableIndex);
     }
 
     receive() external payable virtual {
@@ -200,19 +197,12 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
     /// @inheritdoc ITomoFragmentPool
     function getVotePassAndEthIfQuit(
         address quitor
-    ) external view override returns (uint256, uint256, uint256, uint256) {
-        (
-            uint256 liquidityAvailableGet,
-            uint256 userFrozenShareAmount,
-            uint256 ethAvailableGet,
-            uint256 ethFrozenGet
-        ) = _quitFromLiquidity(quitor, _currentLiquidity);
-        return (
-            liquidityAvailableGet,
-            userFrozenShareAmount,
-            ethAvailableGet,
-            ethFrozenGet
+    ) external view override returns (uint256[] memory) {
+        (uint256[] memory rewardGet, ) = _quitFromLiquidity(
+            quitor,
+            _currentLiquidity
         );
+        return rewardGet;
     }
 
     function getSellPriceAfterFee(
@@ -289,7 +279,7 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         );
 
         uint256 sellAmount = wholeKeyAmount * _fragmentParam;
-        _totalSupply -= sellAmount;
+        //_totalSupply -= sellAmount;
         //_currentLiquidity -= sellAmount;
         _fragBalance[seller] -= sellAmount;
 
