@@ -44,7 +44,6 @@ makeSuiteCleanRoom('Add Eth to liquidity', function () {
             const poolAddress = (await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).fragmentPoolAddress;
             const fragmentPool = TomoFragmentPool__factory.connect(poolAddress, user);
             expect(await fragmentPool._currentLiquidity()).to.eq(buyAmountForFragment * 1000);
-            //expect(await fragmentPool._totalSupply()).to.eq(buyAmountForFragment * 1000);
         });
 
         context('Negatives', function () {
@@ -90,7 +89,6 @@ makeSuiteCleanRoom('Add Eth to liquidity', function () {
                     {value: 1}
                 )).to.be.revertedWithCustomError(fragmentPool, ERRORS.ETH_VALUE_TOO_LOW);
             });
-
         })
 
         context('Scenarios', function () {

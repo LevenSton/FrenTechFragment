@@ -114,7 +114,7 @@ interface ITomoHubEntryPoint {
     /// ***************************************
 
     /**
-     * @notice buy VotePass and set a lock time, can sell if timestame less than you set
+     * @notice buy VotePass and set a lock time, can't sell if timestamep less than you set
      *
      * @param subject Identity of one tomo.
      * @param amount The buy amount.
@@ -134,7 +134,7 @@ interface ITomoHubEntryPoint {
     ) external payable;
 
     /**
-     * @notice sell Vote Pass after be unlocked
+     * @notice sell Vote Pass after time reach your deadline
      *
      * @param lockIndex locke index
      * @param amount sell amount
@@ -148,7 +148,7 @@ interface ITomoHubEntryPoint {
     ) external;
 
     /**
-     * @notice transfer lock Vote Pass to other
+     * @notice transfer lock Vote Pass to other account
      *
      * @param lockIndex locke index
      * @param to the address receipt lock vote pass

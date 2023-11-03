@@ -21,7 +21,6 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
     address public _subjectOwner;
     bytes32 public _subject;
 
-    //uint256 public _totalSupply;
     uint256 public _currentLiquidity;
     uint256 public _fragmentParam; //how mant fragment one key can split
     mapping(address => uint256) public _fragBalance;
@@ -137,6 +136,7 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
             revert Errors.NotTomoFragmentEntryPoint();
         uint256 currentSupply = ITomo(TOMO_IMPL).getSubjectSupply(_subject);
         if (currentSupply == 0) revert Errors.SupplyCanNotBeZero();
+        //get current price of _subject
         uint256 keyPrice = ITomo(TOMO_IMPL).getPrice(currentSupply - 1, 1);
         //if msg.value less than one split key, revert.
         if (msg.value * _fragmentParam < keyPrice)

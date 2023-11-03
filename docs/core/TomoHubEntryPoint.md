@@ -209,7 +209,7 @@ Buy And Fragment Key/Vote.
 function buyVotePassWithLockTimeStamp(bytes32 subject, uint256 amount, uint256 maxAcceptPrice, uint256 lockUntil, uint8[] v, bytes32[] r, bytes32[] s) external payable
 ```
 
-buy VotePass and set a lock time, can sell if timestame less than you set
+buy VotePass and set a lock time, can&#39;t sell if timestamep less than you set
 
 
 
@@ -349,7 +349,7 @@ Sell the Fragment Key/Vote.
 function sellLockVotePass(uint256 lockIndex, uint256 amount, uint256 minAcceptPrice, address payable receiveFund) external nonpayable
 ```
 
-sell Vote Pass after be unlocked
+sell Vote Pass after time reach your deadline
 
 
 
@@ -450,7 +450,7 @@ set new state of TomoHubEntryPoint
 function transferLockVotePass(uint256 lockIndex, address to) external nonpayable
 ```
 
-transfer lock Vote Pass to other
+transfer lock Vote Pass to other account
 
 
 
