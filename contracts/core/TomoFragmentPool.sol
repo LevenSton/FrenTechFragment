@@ -7,6 +7,7 @@ import {Events} from "../libraries/Events.sol";
 import {ITomo} from "../interfaces/ITomo.sol";
 import {FeeSplitter} from "./payment/FeeSplitter.sol";
 import {TomoHubEntryPoint} from "./TomoHubEntryPoint.sol";
+import {DataTypes} from "../libraries/DataTypes.sol";
 
 contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
     address public immutable TOMO_HUB_ENTRYPOINT;
@@ -207,7 +208,7 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
 
     function getSellPriceAfterFee(
         uint256 amount
-    ) public view returns (uint256, uint256) {
+    ) public view override returns (uint256, uint256) {
         uint256 currentSupply = ITomo(TOMO_IMPL).getSubjectSupply(_subject);
         if (currentSupply == 0) revert Errors.SupplyCanNotBeZero();
         uint256 keyPrice = ITomo(TOMO_IMPL).getPrice(currentSupply - 1, 1);
@@ -217,9 +218,15 @@ contract TomoFragmentPool is FeeSplitter, ITomoFragmentPool {
         return (price, price - fee);
     }
 
+    function getShareByliquidityIndex(
+        uint256 index
+    ) external view override returns (DataTypes.Share memory) {
+        return _liquidityIndexToShare[index];
+    }
+
     function getBuyPriceAfterFee(
         uint256 amount
-    ) public view returns (uint256, uint256) {
+    ) public view override returns (uint256, uint256) {
         uint256 currentSupply = ITomo(TOMO_IMPL).getSubjectSupply(_subject);
         if (currentSupply == 0) revert Errors.SupplyCanNotBeZero();
         uint256 keyPrice = ITomo(TOMO_IMPL).getPrice(currentSupply - 1, 1);

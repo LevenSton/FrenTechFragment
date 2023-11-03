@@ -103,4 +103,8 @@ interface ITomoFragmentPool {
     function getBuyPriceAfterFee(
         uint256 amount
     ) external view returns (uint256, uint256);
+
+    function getShareByliquidityIndex(
+        uint256 index
+    ) external view returns (DataTypes.Share memory);
 }

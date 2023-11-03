@@ -93,7 +93,21 @@ makeSuiteCleanRoom('Add Eth to liquidity', function () {
 
         context('Scenarios', function () {
             it('Get correct variable when add eth liquidity success',   async function () {
+                const poolAddress = (await tomoHubEntryPointProxy._subjectToFragmentPool(subject1)).fragmentPoolAddress;
+                const fragmentPool = TomoFragmentPool__factory.connect(poolAddress, user);
+                expect(await fragmentPool._globalLiquidityIndex()).to.equal(1);
+                expect((await fragmentPool.getShareByliquidityIndex(0))._amount).to.equal(2000)
                 
+                const supply = await mockTomo.getSubjectSupply(subject1);
+                const currentPrice = await mockTomo.getPrice(supply.sub(1), 1);
+                const fragmentPrice = currentPrice.div(1000);
+                await expect(tomoHubEntryPointProxy.connect(user).addETHLiquidity(
+                    subject1,
+                    one_week + 1000,
+                    {value: fragmentPrice.add(1)}
+                )).to.not.be.reverted;
+                expect(await fragmentPool._globalLiquidityIndex()).to.equal(2);
+                expect((await fragmentPool.getShareByliquidityIndex(1))._amount).to.equal(1)
             });
         })
     })

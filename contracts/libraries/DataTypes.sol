@@ -27,4 +27,11 @@ library DataTypes {
         uint256 lockUntil;
         address owner;
     }
+
+    struct Share {
+        uint256 _amount;
+        uint256 _timeStamp;
+        uint256 _deadline;
+        address _liquidityProvider;
+    }
 }

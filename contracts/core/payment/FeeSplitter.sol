@@ -5,6 +5,7 @@ pragma solidity ^0.8.12;
 import "@openzeppelin/contracts/utils/Context.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import {Errors} from "../../libraries/Errors.sol";
+import {DataTypes} from "../../libraries/DataTypes.sol";
 
 /**
  * @title FeeSplitter
@@ -34,13 +35,7 @@ contract FeeSplitter is Context {
 
     uint256 public _globalLiquidityIndex;
 
-    struct Share {
-        uint256 _amount;
-        uint256 _timeStamp;
-        uint256 _deadline;
-        address _liquidityProvider;
-    }
-    mapping(uint256 => Share) internal _liquidityIndexToShare;
+    mapping(uint256 => DataTypes.Share) internal _liquidityIndexToShare;
     mapping(address => EnumerableSet.UintSet) internal _userLiquidityLockIds;
     EnumerableSet.UintSet internal _allLiquidityIndex;
 
@@ -50,7 +45,9 @@ contract FeeSplitter is Context {
         uint256 timeStamp,
         uint256 deadline
     ) internal {
-        Share storage share = _liquidityIndexToShare[_globalLiquidityIndex];
+        DataTypes.Share storage share = _liquidityIndexToShare[
+            _globalLiquidityIndex
+        ];
         share._amount = shares;
         share._liquidityProvider = liquidityProvider;
         share._timeStamp = timeStamp;

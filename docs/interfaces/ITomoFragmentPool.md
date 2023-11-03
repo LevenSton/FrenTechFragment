@@ -138,6 +138,28 @@ function getSellPriceAfterFee(uint256 amount) external view returns (uint256, ui
 | _0 | uint256 | undefined |
 | _1 | uint256 | undefined |
 
+### getShareByliquidityIndex
+
+```solidity
+function getShareByliquidityIndex(uint256 index) external view returns (struct DataTypes.Share)
+```
+
+
+
+
+
+#### Parameters
+
+| Name | Type | Description |
+|---|---|---|
+| index | uint256 | undefined |
+
+#### Returns
+
+| Name | Type | Description |
+|---|---|---|
+| _0 | DataTypes.Share | undefined |
+
 ### getVotePassAndEthIfQuit
 
 ```solidity
