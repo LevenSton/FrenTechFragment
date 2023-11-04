@@ -135,6 +135,11 @@ contract FeeSplitter is Context {
         return totalProviderEffectiveTime;
     }
 
+    /**
+     * @notice get the amount of fragment vote and eth can get if quit from liquidity.
+     *
+     * @param liquidityProvider The address of liquidityProvider.
+     */
     function _getUserShareAndEffectiveTime(
         address liquidityProvider
     )
@@ -161,7 +166,6 @@ contract FeeSplitter is Context {
                 userEffectiveTime +=
                     block.timestamp -
                     _liquidityIndexToShare[index]._timeStamp;
-                //availableIndex[j] = index;
                 size++;
             } else {
                 userFrozenShareAmount += _liquidityIndexToShare[index]._amount;
